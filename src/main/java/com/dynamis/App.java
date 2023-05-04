@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -37,10 +38,7 @@ public class App implements AutoCloseable {
                 app.run();
             }
         }
-        catch(SQLException e) {
-            e.printStackTrace();
-        }
-        catch(IOException e) {
+        catch(Exception e) {
             e.printStackTrace();
         }
     }
@@ -51,11 +49,23 @@ public class App implements AutoCloseable {
         this.connection = DriverManager.getConnection(this.url);
         Statement statement = this.connection.createStatement();
 
-        String[] sqlStatements = SqlFileReader.read("create_tables.sql").split(";");
+        // 1. Create tables
+
+        String[] sqlStatements = SqlFileReader.read("src/main/resources/sqlite/create_tables.sql").split(";");
 
         for(String sql : sqlStatements) {
-            statement.execute(sql);
+            statement.executeUpdate(sql + ';');
         }
+
+        // 2. Insert dummy data
+
+        sqlStatements = SqlFileReader.read("src/main/resources/sqlite/insert_dummy_data.sql").split(";");
+
+        for(String sql : sqlStatements) {
+            statement.executeUpdate(sql + ';');
+        }
+
+        // 3. Add options
         
         this.addOption(new DisplayUsersOption());
         this.addOption(new DisplayTeamsOption());
