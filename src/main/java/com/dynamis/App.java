@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 import com.dynamis.options.CreateGroupOption;
 import com.dynamis.options.CreateUserOption;
-import com.dynamis.options.DeleteGroupOption;
+import com.dynamis.options.DeleteTeamOption;
 import com.dynamis.options.DeleteUserOption;
 import com.dynamis.options.DisplayTeamsOption;
 import com.dynamis.options.DisplayUsersOption;
@@ -73,7 +73,7 @@ public class App implements AutoCloseable {
         this.addOption(new CreateUserOption());
         this.addOption(new CreateGroupOption());
         this.addOption(new DeleteUserOption());
-        this.addOption(new DeleteGroupOption());
+        this.addOption(new DeleteTeamOption());
         this.addOption(new ExitApplicationOption());
     }
 
@@ -94,7 +94,7 @@ public class App implements AutoCloseable {
             throw new IllegalArgumentException("Your answer needs to be between 1 and " + (this.options.size()));
         }
 
-        this.options.get(answer - 1).run(this.connection);
+        this.options.get(answer - 1).run(this);
     }
 
     public boolean exitApplication() {
@@ -111,4 +111,7 @@ public class App implements AutoCloseable {
         this.connection.close();
     }
 
+    public Connection getConnection() {
+        return this.connection;
+    }
 }

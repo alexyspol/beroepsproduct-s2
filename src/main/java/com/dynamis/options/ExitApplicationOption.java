@@ -1,12 +1,12 @@
 package com.dynamis.options;
 
-import java.sql.Connection;
+import com.dynamis.App;
 
 public class ExitApplicationOption implements Option {
 
-  @Override
-  public void run(Connection c) {
+    @Override
+    public void run(App app) {
     
-  }
+    }
 
 }
