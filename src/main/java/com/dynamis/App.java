@@ -78,7 +78,7 @@ public class App implements AutoCloseable {
         this.addOption(new ExitApplicationOption());
     }
 
-    public void run() throws SQLException {
+    public void run() throws SQLException, IOException {
         System.out.println("1. Display list of users");
         System.out.println("2. Display list of groups");
         System.out.println("3. Edit user by id");
