@@ -114,4 +114,8 @@ public class App implements AutoCloseable {
     public Connection getConnection() {
         return this.connection;
     }
+
+    public Scanner getScanner() {
+        return this.scanner;
+    }
 }
