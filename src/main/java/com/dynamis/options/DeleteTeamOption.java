@@ -5,7 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.sql.SQLException;
 
@@ -22,52 +24,75 @@ public class DeleteTeamOption implements Option {
         Scanner scanner = app.getScanner();
 
         String[] sqlStatements = SqlFileReader.read("src/main/resources/sqlite/delete_team.sql").split(";");
-        PreparedStatement allTeams = connection.prepareStatement(sqlStatements[0]);
-        PreparedStatement deleteTeam = connection.prepareStatement(sqlStatements[3]);
-        PreparedStatement deleteUsers = connection.prepareStatement(sqlStatements[2]);
-        PreparedStatement selectedStudents = connection.prepareStatement(sqlStatements[1]);
-        PreparedStatement deleteContactInfo = connection.prepareStatement(sqlStatements[4]);
+        PreparedStatement selectAllTeamsStmt = connection.prepareStatement(sqlStatements[0]);
+        PreparedStatement selectedStudentsStmt = connection.prepareStatement(sqlStatements[1]);
+        PreparedStatement deleteSelectedTeamStmt = connection.prepareStatement(sqlStatements[2]);
+        PreparedStatement deleteSelectedUsersStmt = connection.prepareStatement(sqlStatements[3]);
+        PreparedStatement deleteContactInfoStmt = connection.prepareStatement(sqlStatements[4]);
 
-        Object[][] teams = convertResultSetToArray(allTeams.executeQuery());
-
-        System.out.println("Which team do you want to delete?");
-
-        for(int i = 0; i < teams.length; i++) {
-            Object[] currentTeam = teams[i];
-            String teamName = (String) currentTeam[1];
+        ResultSet teams = selectAllTeamsStmt.executeQuery();
+        Map<Integer, Object[]> teamsMap = new HashMap<>();
+        int index = 1;
         
-            System.out.println(i+1 + ". " + teamName);
+        System.out.println("Which team do you want to delete?");
+        while(teams.next()) {
+
+            int teamId = teams.getInt("id");
+            String teamName = teams.getString("team_name");
+
+            Object[] team = { teamId, teamName };
+            teamsMap.put(index, team);
+            
+            System.out.println(index + ". " + teamName);
+
+            index++;
         }
 
         int userInput = scanner.nextInt();
 
-        if(!(1 <= userInput && userInput <= teams.length)) {
-            throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.length);
+        if(!(1 <= userInput && userInput <= teamsMap.size())) {
+            throw new IllegalArgumentException("Your answer needs to be between 1 and " + teamsMap.size());
         }
 
-        int idTeamToBeDeleted = (int) teams[userInput - 1][0];
+        Object[] selectedTeam = teamsMap.get(userInput);
+        int selectedTeamId = (int) selectedTeam[0];
+        String selectedTeamName = (String) selectedTeam[1];
 
-        selectedStudents.setInt(1, idTeamToBeDeleted);
-        Object[][] students = convertResultSetToArray(selectedStudents.executeQuery());
+        selectedStudentsStmt.setInt(1, selectedTeamId);
+        Object[][] selectedStudents = convertResultSetToArray(selectedStudentsStmt.executeQuery());
 
         // Firstly, delete the team
 
-        deleteTeam.setInt(1, idTeamToBeDeleted);
-        deleteTeam.executeUpdate();
+        deleteSelectedTeamStmt.setInt(1, selectedTeamId);
+        deleteSelectedTeamStmt.executeUpdate();
 
         // Secondly, delete all the users associated with that team
 
-        deleteUsers.setInt(1, idTeamToBeDeleted);
-        deleteUsers.executeUpdate();
+        deleteSelectedUsersStmt.setInt(1, selectedTeamId);
+        deleteSelectedUsersStmt.executeUpdate();
 
-        // Lastly, delete the contact information for each of the deleted students
+        // Thirdly, delete the contact information for each of the deleted students
         
-        for(Object[] student : students) {
+        for(Object[] student : selectedStudents) {
             String studentId = (String) student[0];
 
-            deleteContactInfo.setString(1, studentId);
-            deleteContactInfo.executeUpdate();
+            deleteContactInfoStmt.setString(1, studentId);
+            deleteContactInfoStmt.executeUpdate();
         }
+
+        // Lastly, print information
+        
+        System.out.println();
+        System.out.println("> Deleted team: " + selectedTeamName);
+        for(int i = 0; i < selectedStudents.length; i++) {
+            Object[] student = selectedStudents[i];
+            String studentId = (String) student[0];
+            String firstName = (String) student[1];
+            String lastName = (String) student[2];
+
+            System.out.println("    " + firstName + " " + lastName + " (" + studentId + ")");
+        }
+        System.out.println();
     }
 
     Object[][] convertResultSetToArray(ResultSet rs) throws SQLException {
