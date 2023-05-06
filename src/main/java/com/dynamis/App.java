@@ -30,6 +30,65 @@ public class App implements AutoCloseable {
     private List<Option> options = new ArrayList<>();
     private boolean userWantsToExit = false;
 
+    private String[] sqlStatements = {
+        """
+            CREATE TABLE IF NOT EXISTS users (
+                student_id TEXT PRIMARY KEY,
+                first_name TEXT,
+                last_name TEXT,
+                dob TEXT,
+                team_id INTEGER REFERENCES teams(id)
+            );
+        """,
+        """
+            CREATE TABLE IF NOT EXISTS teams (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team_name TEXT
+            );
+        """,
+        """
+            CREATE TABLE IF NOT EXISTS contact_info (
+                student_id TEXT PRIMARY KEY REFERENCES users(student_id),
+                phone TEXT,
+                email TEXT,
+                residence TEXT,
+                skill TEXT
+            );
+        """
+    };
+
+    private String[] dummyData = {
+        """
+            INSERT INTO users (student_id, first_name, last_name, dob, team_id) VALUES
+            ('001', 'John', 'Doe', '1995-07-01', 1),
+            ('002', 'Jane', 'Smith', '1996-10-05', 1),
+            ('003', 'Bob', 'Johnson', '1997-01-15', 2),
+            ('004', 'Sarah', 'Lee', '1998-04-30', 2),
+            ('005', 'David', 'Kim', '1995-09-12', 3),
+            ('006', 'Emily', 'Garcia', '1996-12-25', 3),
+            ('007', 'Jason', 'Nguyen', '1997-05-18', 4),
+            ('008', 'Megan', 'Wong', '1998-08-22', 4);
+        """,
+        """
+            INSERT INTO teams (team_name) VALUES
+            ('Team A'),
+            ('Team B'),
+            ('Team C'),
+            ('Team D');
+        """,
+        """
+            INSERT INTO contact_info (student_id, phone, email, residence, skill) VALUES
+            ('001', '555-1234', 'johndoe@example.com', '123 Main St, Anytown USA', 'Java'),
+            ('002', '555-5678', 'janesmith@example.com', '456 Elm St, Anytown USA', 'Python'),
+            ('003', '555-9876', 'bobjohnson@example.com', '789 Oak St, Anytown USA', 'JavaScript'),
+            ('004', '555-4321', 'sarahlee@example.com', '321 Pine St, Anytown USA', 'C#'),
+            ('005', '555-2468', 'davidkim@example.com', '654 Maple St, Anytown USA', 'PHP'),
+            ('006', '555-3690', 'emilygarcia@example.com', '987 Cedar St, Anytown USA', 'Ruby'),
+            ('007', '555-1357', 'jasonnguyen@example.com', '246 Birch St, Anytown USA', 'Swift'),
+            ('008', '555-5793', 'meganwong@example.com', '135 Walnut St, Anytown USA', 'C++');
+        """
+    };
+
     public static void main(String[] args) {
 
         try(App app = new App()) {
@@ -50,18 +109,14 @@ public class App implements AutoCloseable {
 
         // 1. Create tables
 
-        String[] sqlStatements = SqlFileReader.read("src/main/resources/sqlite/create_tables.sql").split(";");
-
         for(String sql : sqlStatements) {
-            statement.executeUpdate(sql + ';');
+            statement.executeUpdate(sql);
         }
 
         // 2. Insert dummy data
 
-        sqlStatements = SqlFileReader.read("src/main/resources/sqlite/insert_dummy_data.sql").split(";");
-
-        for(String sql : sqlStatements) {
-            statement.executeUpdate(sql + ';');
+        for(String sql : dummyData) {
+            statement.executeUpdate(sql);
         }
 
         // 3. Add options
