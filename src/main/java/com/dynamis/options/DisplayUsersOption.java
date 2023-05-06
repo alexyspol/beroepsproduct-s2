@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.dynamis.App;
-import com.dynamis.SqlFileReader;
 
 public class DisplayUsersOption implements Option {
     private String sql = """
