@@ -11,15 +11,27 @@ import com.dynamis.App;
 import com.dynamis.SqlFileReader;
 
 public class DisplayUsersOption implements Option {
+    private String sql = """
+        SELECT u.student_id, u.first_name, u.last_name, u.dob,
+               c.phone, c.email, c.residence, c.skill,
+               t.team_name
+        FROM users u, contact_info c, teams t
+        WHERE c.student_id = u.student_id AND t.id = u.team_id;
+        """;
 
     @Override
     public void run(App app) throws SQLException, IOException {
-        System.out.println();
+
+        // Step 1: Fetch information from database
 
         Statement s = app.getConnection().createStatement();
-        ResultSet rs = s.executeQuery(SqlFileReader.read("src/main/resources/sqlite/display_users.sql"));
+        ResultSet rs = s.executeQuery(sql);
+
+        // Step 2: Print it out
 
         int i = 1;
+
+        System.out.println();
 
         while(rs.next()) {
             String studentId = rs.getString("student_id");
@@ -32,17 +44,18 @@ public class DisplayUsersOption implements Option {
             String skill = rs.getString("skill");
             String teamName = rs.getString("team_name");
 
-            System.out.println(
-                "> " + i + ". " + firstName + " " + lastName + "\n" +
-                "    Student ID: " + studentId + '\n' +
-                "    Date of Birth: " + dob + "\n" +
-                "    Age: " + calculateAge(dob) + '\n' +
-                "    Team: " + teamName + '\n' +
-                "    Phone: " + phone + '\n' +
-                "    E-mail: " + email + '\n' +
-                "    Residence: " + residence + '\n' +
-                "    Skill: " + skill + '\n'
-            );
+            System.out.printf("""
+                    > %d. %s %s
+                        Student ID: %s
+                        Date of Birth: %s
+                        Age: %d
+                        Team: %s
+                        Phone: %s
+                        E-mail: %s
+                        Residence: %s
+                        Skill: %s
+
+                    """, i, firstName, lastName, studentId, dob, calculateAge(dob), teamName, phone, email, residence, skill);
 
             i++;
         }
