@@ -37,10 +37,10 @@ public class DisplayTeamsOption implements Option {
             if(!teamName.equals(currentTeam)) {
                 System.out.printf("\n> %d. %s\n", i, teamName);
                 currentTeam = teamName;
+                i++;
             }
 
             System.out.println("    " + fullName);
-            i++;
         }
 
         System.out.println();
