@@ -59,7 +59,7 @@ public class DeleteTeamOption implements Option {
             String teamName = rs.getString("team_name");
 
             Team team = new Team();
-            team.setTeamId(teamId);
+            team.setId(teamId);
             team.setTeamName(teamName);
 
             teams.add(team);
@@ -86,7 +86,7 @@ public class DeleteTeamOption implements Option {
 
         // Step 4: Get the users associated with that team
 
-        selectUsers.setInt(1, selectedTeam.getTeamId());
+        selectUsers.setInt(1, selectedTeam.getId());
         rs = selectUsers.executeQuery();
 
         // Convert ResultSet into List<User>
@@ -108,12 +108,12 @@ public class DeleteTeamOption implements Option {
 
         // Step 5: Delete the team
 
-        deleteSelectedTeam.setInt(1, selectedTeam.getTeamId());
+        deleteSelectedTeam.setInt(1, selectedTeam.getId());
         deleteSelectedTeam.executeUpdate();
 
         // Step 6: Delete the users
 
-        deleteSelectedUsers.setInt(1, selectedTeam.getTeamId());
+        deleteSelectedUsers.setInt(1, selectedTeam.getId());
         deleteSelectedUsers.executeUpdate();
 
         // Step 7: Delete user's contact information
