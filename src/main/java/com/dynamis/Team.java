@@ -1,15 +1,15 @@
 package com.dynamis;
 
 public class Team {
-  private int teamId;
+  private int id;
   private String teamName;
 
-  public int getTeamId() {
-    return this.teamId;
+  public int getId() {
+    return this.id;
   }
 
-  public void setTeamId(int teamId) {
-    this.teamId = teamId;
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getTeamName() {
