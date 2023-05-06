@@ -3,7 +3,6 @@ package com.dynamis.options;
 import java.sql.Statement;
 
 import com.dynamis.App;
-import com.dynamis.SqlFileReader;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -11,11 +10,22 @@ import java.sql.SQLException;
 
 public class DisplayTeamsOption implements Option {
 
+    private String sql = """
+        SELECT t.team_name,
+               u.first_name || ' ' || u.last_name AS full_name
+        FROM teams t, users u
+        WHERE u.team_id = t.id;
+        """;
+
     @Override
     public void run(App app) throws SQLException, IOException {
-      
+        
+        // Step 1: Fetch the information from the database
+
         Statement s = app.getConnection().createStatement();
-        ResultSet rs = s.executeQuery(SqlFileReader.read("src/main/resources/sqlite/display_teams.sql"));
+        ResultSet rs = s.executeQuery(sql);
+
+        // Step 2: Print it
 
         String currentTeam = "";
         int i = 1;
@@ -25,9 +35,7 @@ public class DisplayTeamsOption implements Option {
             String fullName = rs.getString("full_name");
 
             if(!teamName.equals(currentTeam)) {
-                System.out.println();
-                
-                System.out.println("> " + i + ". " + teamName);
+                System.out.printf("\n> %d. %s\n", i, teamName);
                 currentTeam = teamName;
             }
 
