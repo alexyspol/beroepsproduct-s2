@@ -156,6 +156,10 @@ public class App implements AutoCloseable {
         return this.userWantsToExit;
     }
 
+    public void setUserWantsToExit(boolean userWantsToExit) {
+        this.userWantsToExit = userWantsToExit;
+    }
+
     public void addOption(Option option) {
         this.options.add(option);
     }
