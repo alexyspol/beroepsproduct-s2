@@ -1,6 +1,7 @@
 package com.dynamis;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -102,6 +103,12 @@ public class App implements AutoCloseable {
     }
 
     public App() throws SQLException, IOException {
+
+        File file = new File("hackathon.db");
+
+        if (file.exists()) {
+            file.delete();
+        }
 
         this.scanner = new Scanner(new BufferedInputStream(System.in));
         this.connection = DriverManager.getConnection(this.url);
