@@ -1,6 +1,5 @@
 package com.dynamis.options;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +34,7 @@ public class DeleteTeamOption implements Option {
     };
 
     @Override
-    public void run(App app) throws SQLException, IOException {
+    public void run(App app) throws SQLException {
 
         Connection connection = app.getConnection();
         Scanner scanner = app.getScanner();

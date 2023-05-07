@@ -4,7 +4,6 @@ import java.sql.Statement;
 
 import com.dynamis.App;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -18,7 +17,7 @@ public class DisplayTeamsOption implements Option {
         """;
 
     @Override
-    public void run(App app) throws SQLException, IOException {
+    public void run(App app) throws SQLException {
         
         // Step 1: Fetch the information from the database
 

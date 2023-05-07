@@ -1,6 +1,5 @@
 package com.dynamis.options;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -19,7 +18,7 @@ public class DisplayUsersOption implements Option {
         """;
 
     @Override
-    public void run(App app) throws SQLException, IOException {
+    public void run(App app) throws SQLException {
 
         // Step 1: Fetch information from database
 
