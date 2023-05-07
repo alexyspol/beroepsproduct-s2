@@ -16,7 +16,7 @@ import com.dynamis.options.DeleteTeamOption;
 import com.dynamis.options.DeleteUserOption;
 import com.dynamis.options.DisplayTeamsOption;
 import com.dynamis.options.DisplayUsersOption;
-import com.dynamis.options.EditGroupOption;
+import com.dynamis.options.EditTeamOption;
 import com.dynamis.options.EditUserByIdOption;
 import com.dynamis.options.ExitApplicationOption;
 import com.dynamis.options.Option;
@@ -124,7 +124,7 @@ public class App implements AutoCloseable {
         this.addOption(new DisplayUsersOption());
         this.addOption(new DisplayTeamsOption());
         this.addOption(new EditUserByIdOption());
-        this.addOption(new EditGroupOption());
+        this.addOption(new EditTeamOption());
         this.addOption(new CreateUserOption());
         this.addOption(new CreateGroupOption());
         this.addOption(new DeleteUserOption());
