@@ -64,4 +64,10 @@ public class DisplayUsersOption implements Option {
         LocalDate currentDate = LocalDate.now();
         return Period.between(birthDate, currentDate).getYears();
     }
+
+    @Override
+    public String toString() {
+        return "Display list of users";
+    }
+
 }

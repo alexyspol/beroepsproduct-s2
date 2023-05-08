@@ -45,4 +45,9 @@ public class DisplayTeamsOption implements Option {
         System.out.println();
     }
 
+    @Override
+    public String toString() {
+        return "Display list of teams";
+    }
+
 }

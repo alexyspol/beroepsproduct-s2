@@ -9,4 +9,9 @@ public class CreateTeamOption implements Option {
     
     }
 
+    @Override
+    public String toString() {
+        return "Create team";
+    }
+
 }

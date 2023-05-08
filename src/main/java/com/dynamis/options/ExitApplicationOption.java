@@ -10,4 +10,9 @@ public class ExitApplicationOption implements Option {
         app.setUserWantsToExit(true);
     }
 
+    @Override
+    public String toString() {
+        return "Exit application";
+    }
+
 }

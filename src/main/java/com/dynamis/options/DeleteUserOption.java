@@ -130,4 +130,10 @@ public class DeleteUserOption implements Option {
 
             """, selectedUser.getFirstName(), selectedUser.getLastName(), selectedUser.getStudentId(), selectedUser.getTeam().getTeamName());
     }
+
+    @Override
+    public String toString() {
+        return "Delete user";
+    }
+
 }

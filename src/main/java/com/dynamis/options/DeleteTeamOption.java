@@ -138,4 +138,10 @@ public class DeleteTeamOption implements Option {
         }
         System.out.println();
     }
+
+    @Override
+    public String toString() {
+        return "Delete team";
+    }
+
 }

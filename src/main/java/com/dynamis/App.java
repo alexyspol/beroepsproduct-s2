@@ -140,15 +140,14 @@ public class App implements AutoCloseable {
     }
 
     public void run() throws SQLException, IOException {
-        System.out.println("1. Display list of users");
-        System.out.println("2. Display list of groups");
-        System.out.println("3. Edit user by id");
-        System.out.println("4. Edit group");
-        System.out.println("5. Create user");
-        System.out.println("6. Create group");
-        System.out.println("7. Delete user");
-        System.out.println("8. Delete group");
-        System.out.println("9. Exit application");
+        
+        System.out.println("Choose an option:");
+
+        for(int i = 0; i < this.options.size(); i++) {
+            Option option = options.get(i);
+
+            System.out.printf("%d. %s\n", i+1, option);
+        }
 
         int answer = this.scanner.nextInt();
 

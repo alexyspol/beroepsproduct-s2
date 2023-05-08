@@ -86,4 +86,9 @@ public class EditTeamOption implements Option {
         System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.getTeamName(), newTeamName);
     }
 
+    @Override
+    public String toString() {
+        return "Edit team";
+    }
+
 }

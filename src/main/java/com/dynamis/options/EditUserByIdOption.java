@@ -9,4 +9,9 @@ public class EditUserByIdOption implements Option {
     
     }
 
+    @Override
+    public String toString() {
+        return "Edit user by id";
+    }
+
 }

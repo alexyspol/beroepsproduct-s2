@@ -178,4 +178,10 @@ public class CreateUserOption implements Option {
     private boolean isValidPhoneNumber(String phoneNumber) {
         return phoneNumber.matches("0\\d{3}-\\d{4}|0\\d{7}|\\d{3}-\\d{4}|\\d{7}");
     }
+
+    @Override
+    public String toString() {
+        return "Create user";
+    }
+
 }
