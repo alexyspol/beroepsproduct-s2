@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import com.dynamis.options.CreateGroupOption;
+import com.dynamis.options.CreateTeamOption;
 import com.dynamis.options.CreateUserOption;
 import com.dynamis.options.DeleteTeamOption;
 import com.dynamis.options.DeleteUserOption;
@@ -133,7 +133,7 @@ public class App implements AutoCloseable {
         this.addOption(new EditUserByIdOption());
         this.addOption(new EditTeamOption());
         this.addOption(new CreateUserOption());
-        this.addOption(new CreateGroupOption());
+        this.addOption(new CreateTeamOption());
         this.addOption(new DeleteUserOption());
         this.addOption(new DeleteTeamOption());
         this.addOption(new ExitApplicationOption());
