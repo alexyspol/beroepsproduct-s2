@@ -1,35 +1,24 @@
 package com.dynamis.options;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 import com.dynamis.App;
+import com.dynamis.SQLFile;
 
 public class CreateUserOption implements Option {
 
-    private String[] sql = {
-        """
-            SELECT id
-            FROM teams
-            WHERE team_name = ?;
-        """,
-        """
-            INSERT INTO teams (team_name)
-            VALUES (?);
-        """,
-        """
-            INSERT INTO users (student_id, first_name, last_name, dob, team_id)
-            VALUES (?, ?, ?, ?, ?);
-        """,
-        """
-            INSERT INTO contact_info (student_id, phone, email, residence, skill)
-            VALUES (?, ?, ?, ?, ?);
-        """
-    };
+    private SQLFile sql;
+
+    public CreateUserOption() throws IOException {
+        sql = new SQLFile("create_user.sql");
+    }
 
     @Override
     public void run(App app) throws SQLException {
@@ -38,10 +27,10 @@ public class CreateUserOption implements Option {
 
         s.nextLine(); // consume the previous newline character
         
-        PreparedStatement selectTeamIdIfExists = c.prepareStatement(sql[0]);
-        PreparedStatement insertNewTeam = c.prepareStatement(sql[1], Statement.RETURN_GENERATED_KEYS);
-        PreparedStatement insertNewUser = c.prepareStatement(sql[2]);
-        PreparedStatement insertContactInfo = c.prepareStatement(sql[3]);
+        PreparedStatement selectTeamIdIfExists = c.prepareStatement(sql.nextStatement());
+        PreparedStatement insertNewTeam = c.prepareStatement(sql.nextStatement(), Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement createNewUser = c.prepareStatement(sql.nextStatement());
+        PreparedStatement saveContactInfo = c.prepareStatement(sql.nextStatement());
 
         // Step 1: Ask for the user's first name
 
@@ -75,9 +64,7 @@ public class CreateUserOption implements Option {
         System.out.print("Date of birth (yyyy-mm-dd): ");
         String dob = s.nextLine().trim();
 
-        if (!isValidDateString(dob)) {
-            throw new IllegalArgumentException("Invalid date format, expected yyyy-mm-dd");
-        }
+        LocalDate.parse(dob); // will throw if invalid
 
         // Step 5: Ask for the user's team name
 
@@ -93,7 +80,7 @@ public class CreateUserOption implements Option {
         System.out.print("Phone number: (+597) ");
         String phone = s.nextLine().trim();
 
-        if(!isValidPhoneNumber(phone)) {
+        if(!phone.matches("0\\d{3}-\\d{4}|0\\d{7}|\\d{3}-\\d{4}|\\d{7}")) {
             throw new IllegalArgumentException("Invalid phone number format. Valid formats are 0xxx-xxxx, xxx-xxxx or xxxxxxx (7 digits)");
         }
 
@@ -102,7 +89,7 @@ public class CreateUserOption implements Option {
         System.out.print("E-mail: ");
         String email = s.nextLine().trim();
 
-        if(!isValidEmail(email)) {
+        if(!email.matches("^[\\w._-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
             throw new IllegalArgumentException("Invalid email address");
         }
 
@@ -135,21 +122,21 @@ public class CreateUserOption implements Option {
 
         // Step 11: Create the new user
 
-        insertNewUser.setString(1, studentId);
-        insertNewUser.setString(2, firstName);
-        insertNewUser.setString(3, lastName);
-        insertNewUser.setString(4, dob);
-        insertNewUser.setInt(5, teamId);
-        insertNewUser.executeUpdate();
+        createNewUser.setString(1, studentId);
+        createNewUser.setString(2, firstName);
+        createNewUser.setString(3, lastName);
+        createNewUser.setString(4, dob);
+        createNewUser.setInt(5, teamId);
+        createNewUser.executeUpdate();
 
         // Step 12: Store the user's contact information
 
-        insertContactInfo.setString(1, studentId);
-        insertContactInfo.setString(2, phone);
-        insertContactInfo.setString(3, email);
-        insertContactInfo.setString(4, residence);
-        insertContactInfo.setString(5, skill);
-        insertContactInfo.executeUpdate();
+        saveContactInfo.setString(1, studentId);
+        saveContactInfo.setString(2, phone);
+        saveContactInfo.setString(3, email);
+        saveContactInfo.setString(4, residence);
+        saveContactInfo.setString(5, skill);
+        saveContactInfo.executeUpdate();
 
         // Step : Print information
 
@@ -165,18 +152,6 @@ public class CreateUserOption implements Option {
                 Skill: %s
 
             """, firstName, lastName, studentId, dob, teamName, phone, email, residence, skill);
-    }
-
-    private boolean isValidDateString(String dateString) {
-        return dateString.matches("^\\d{4}-\\d{2}-\\d{2}$"); // regular expression to match yyyy-mm-dd pattern
-    }
-
-    private boolean isValidEmail(String email) {
-        return email.matches("^[\\w._-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
-    }
-
-    private boolean isValidPhoneNumber(String phoneNumber) {
-        return phoneNumber.matches("0\\d{3}-\\d{4}|0\\d{7}|\\d{3}-\\d{4}|\\d{7}");
     }
 
     @Override
