@@ -1,5 +1,6 @@
 package com.dynamis.options;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -7,15 +8,14 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.dynamis.App;
+import com.dynamis.SQLFile;
 
 public class DisplayUsersOption implements Option {
-    private String sql = """
-        SELECT u.student_id, u.first_name, u.last_name, u.dob,
-               c.phone, c.email, c.residence, c.skill,
-               t.team_name
-        FROM users u, contact_info c, teams t
-        WHERE c.student_id = u.student_id AND t.id = u.team_id;
-        """;
+    private SQLFile sql;
+
+    public DisplayUsersOption() throws IOException {
+        sql = new SQLFile("display_users.sql");
+    }
 
     @Override
     public void run(App app) throws SQLException {
@@ -23,7 +23,7 @@ public class DisplayUsersOption implements Option {
         // Step 1: Fetch information from database
 
         Statement s = app.getConnection().createStatement();
-        ResultSet rs = s.executeQuery(sql);
+        ResultSet rs = s.executeQuery(sql.nextStatement());
 
         // Step 2: Print it out
 
