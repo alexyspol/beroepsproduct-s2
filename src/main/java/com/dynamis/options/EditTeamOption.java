@@ -1,5 +1,6 @@
 package com.dynamis.options;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,28 +10,24 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.dynamis.App;
+import com.dynamis.SQLFile;
 import com.dynamis.Team;
 
 public class EditTeamOption implements Option {
 
-    private String[] sql = {
-        """
-            SELECT * FROM teams;
-        """,
-        """
-            UPDATE teams
-            SET team_name = ?
-            WHERE id = ?;
-        """
-    };
+    private SQLFile sql;
+
+    public EditTeamOption() throws IOException {
+        sql = new SQLFile("edit_team.sql");
+    }
 
     @Override
     public void run(App app) throws SQLException {
         Connection c = app.getConnection();
         Scanner s = app.getScanner();
 
-        PreparedStatement selectAllTeams = c.prepareStatement(sql[0]);
-        PreparedStatement updateTeamName = c.prepareStatement(sql[1]);
+        PreparedStatement selectAllTeams = c.prepareStatement(sql.nextStatement());
+        PreparedStatement updateTeamName = c.prepareStatement(sql.nextStatement());
 
         // Step 1: Get all teams
 
@@ -60,19 +57,18 @@ public class EditTeamOption implements Option {
             System.out.printf("%d. %s\n", i+1, team.getTeamName());
         }
 
-        int userInput = s.nextInt();
+        int selection = s.nextInt();
+        s.nextLine(); // consume the previous newline character
 
-        if(!(1 <= userInput && userInput <= teams.size())) {
+        if(!(1 <= selection && selection <= teams.size())) {
             throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.size());
         }
 
-        Team selectedTeam = teams.get(userInput - 1);
+        Team selectedTeam = teams.get(selection - 1);
 
         // Step 3: Ask for the new name
 
         System.out.printf("\nChange \"%s\" to: ", selectedTeam.getTeamName());
-
-        s.nextLine(); // consume the previous newline character
         String newTeamName = s.nextLine();
 
         // Step 4: Change the team name in the database
