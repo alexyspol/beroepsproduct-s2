@@ -1,20 +1,20 @@
 package com.dynamis.options;
 
-import java.sql.Statement;
-
 import com.dynamis.App;
+import com.dynamis.SQLFile;
 
+import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.SQLException;
 
 public class DisplayTeamsOption implements Option {
 
-    private String sql = """
-        SELECT t.team_name,
-               u.first_name || ' ' || u.last_name AS full_name
-        FROM teams t, users u
-        WHERE u.team_id = t.id;
-        """;
+    private SQLFile sql;
+
+    public DisplayTeamsOption() throws IOException {
+        sql = new SQLFile("display_teams.sql");
+    }
 
     @Override
     public void run(App app) throws SQLException {
@@ -22,7 +22,7 @@ public class DisplayTeamsOption implements Option {
         // Step 1: Fetch the information from the database
 
         Statement s = app.getConnection().createStatement();
-        ResultSet rs = s.executeQuery(sql);
+        ResultSet rs = s.executeQuery(sql.nextStatement());
 
         // Step 2: Print it
 
