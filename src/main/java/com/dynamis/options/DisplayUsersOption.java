@@ -1,9 +1,10 @@
 package com.dynamis.options;
 
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -13,50 +14,54 @@ import com.dynamis.SQLFile;
 public class DisplayUsersOption implements Option {
     private SQLFile sql;
 
-    public DisplayUsersOption() throws IOException {
-        sql = new SQLFile("display_users.sql");
-    }
-
     @Override
-    public void run(App app) throws SQLException {
+    public void run(App app) {
+
+        sql = new SQLFile("display_users.sql");
 
         // Step 1: Fetch information from database
 
-        Statement s = app.getConnection().createStatement();
-        ResultSet rs = s.executeQuery(sql.nextStatement());
+        try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
+            PreparedStatement s = c.prepareStatement(sql.nextStatement());
+            ResultSet rs = s.executeQuery()) {
 
-        // Step 2: Print it out
+            int i = 1;
 
-        int i = 1;
+            // Step 2: Print it out
+            
+            System.out.println();
 
-        System.out.println();
+            while(rs.next()) {
+                String studentId = rs.getString("student_id");
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+                String dob = rs.getString("dob");
+                String phone = rs.getString("phone");
+                String email = rs.getString("email");
+                String residence = rs.getString("residence");
+                String skill = rs.getString("skill");
+                String teamName = rs.getString("team_name");
 
-        while(rs.next()) {
-            String studentId = rs.getString("student_id");
-            String firstName = rs.getString("first_name");
-            String lastName = rs.getString("last_name");
-            String dob = rs.getString("dob");
-            String phone = rs.getString("phone");
-            String email = rs.getString("email");
-            String residence = rs.getString("residence");
-            String skill = rs.getString("skill");
-            String teamName = rs.getString("team_name");
+                System.out.printf("""
+                        > %d. %s %s
+                            Student ID: %s
+                            Date of Birth: %s
+                            Age: %d
+                            Team: %s
+                            Phone: %s
+                            E-mail: %s
+                            Residence: %s
+                            Skill: %s
 
-            System.out.printf("""
-                    > %d. %s %s
-                        Student ID: %s
-                        Date of Birth: %s
-                        Age: %d
-                        Team: %s
-                        Phone: %s
-                        E-mail: %s
-                        Residence: %s
-                        Skill: %s
+                        """, i, firstName, lastName, studentId, dob, calculateAge(dob), teamName, phone, email, residence, skill);
 
-                    """, i, firstName, lastName, studentId, dob, calculateAge(dob), teamName, phone, email, residence, skill);
-
-            i++;
+                i++;
+            }
         }
+        catch(SQLException e) {
+
+        }
+
     }
 
     private int calculateAge(String dob) {

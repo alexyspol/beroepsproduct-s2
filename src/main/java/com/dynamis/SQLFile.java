@@ -11,8 +11,13 @@ public class SQLFile {
     private String[] statements;
     private int index = -1;
 
-    public SQLFile(String filename) throws IOException {
-        statements = readFile(filename).split(";");
+    public SQLFile(String filename) {
+        try {
+            statements = readFile(filename).split(";");
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String nextStatement() {
