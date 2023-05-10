@@ -11,17 +11,15 @@ import java.sql.SQLException;
 
 public class DisplayTeamsOption implements Option {
 
-    private SQLFile sql;
-
     @Override
     public void run(App app) {
 
-        sql = new SQLFile("display_teams.sql");
+        SQLFile sql = new SQLFile("display_teams.sql");
 
         // Step 1: Fetch the information from the database
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            Statement s = app.getConnection().createStatement();
+            Statement s = c.createStatement();
             ResultSet rs = s.executeQuery(sql.nextStatement())) {
 
             String currentTeam = "";

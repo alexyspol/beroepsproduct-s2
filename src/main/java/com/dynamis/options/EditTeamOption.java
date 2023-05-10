@@ -1,85 +1,72 @@
 package com.dynamis.options;
 
-import java.io.IOException;
+import java.io.BufferedInputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
 import com.dynamis.SQLFile;
-import com.dynamis.Team;
 
 public class EditTeamOption implements Option {
 
-    private SQLFile sql;
-
-    public EditTeamOption() throws IOException {
-        sql = new SQLFile("edit_team.sql");
-    }
-
     @Override
     public void run(App app) throws SQLException {
-        Connection c = app.getConnection();
-        Scanner s = app.getScanner();
 
-        PreparedStatement selectAllTeams = c.prepareStatement(sql.nextStatement());
-        PreparedStatement updateTeamName = c.prepareStatement(sql.nextStatement());
+        Scanner s = new Scanner(new BufferedInputStream(System.in));
+        SQLFile sql = new SQLFile("edit_team.sql");
 
-        // Step 1: Get all teams
+        try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
+            PreparedStatement selectAllTeams = c.prepareStatement(sql.nextStatement());
+            PreparedStatement changeTeamName = c.prepareStatement(sql.nextStatement());
+            ResultSet rs = selectAllTeams.executeQuery()) {
 
-        ResultSet rs = selectAllTeams.executeQuery();
+            List<Map<String, Object>> teams = new ArrayList<>();
 
-        // Convert ResultSet to List<Team>
+            while(rs.next()) {
+                int teamId = rs.getInt("id");
+                String teamName = rs.getString("team_name");
+    
+                Map<String, Object> team = new HashMap<>();
 
-        List<Team> teams = new ArrayList<>();
+                team.put("team_id", teamId);
+                team.put("team_name", teamName);
 
-        while(rs.next()) {
-            int id = rs.getInt("id");
-            String teamName = rs.getString("team_name");
+                teams.add(team);
+            }
 
-            Team team = new Team();
-            team.setId(id);
-            team.setTeamName(teamName);
+            System.out.println("\nEdit team:");
+            for(int i = 0; i < teams.size(); i++) {
+                Map<String, Object> team = teams.get(i);
 
-            teams.add(team);
+                System.out.printf("%d. %s\n", i+1, team.get("team_name"));
+            }
+
+            int selection = s.nextInt();
+            s.nextLine(); // consume the previous newline character
+
+            if(!(1 <= selection && selection <= teams.size())) {
+                throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.size());
+            }
+
+            Map<String, Object> selectedTeam = teams.get(selection - 1);
+
+            System.out.printf("\nChange team name (%s): ", selectedTeam.get("team_name"));
+            String newTeamName = s.nextLine();
+    
+            changeTeamName.setString(1, newTeamName);
+            changeTeamName.setInt(2, (int) selectedTeam.get("team_id"));
+            changeTeamName.executeUpdate();
+
+            System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.get("team_name"), newTeamName);
         }
-
-        // Step 2: Ask the user which team to change
-
-        System.out.println("\nEdit team:");
-        for(int i = 0; i < teams.size(); i++) {
-            Team team = teams.get(i);
-
-            System.out.printf("%d. %s\n", i+1, team.getTeamName());
-        }
-
-        int selection = s.nextInt();
-        s.nextLine(); // consume the previous newline character
-
-        if(!(1 <= selection && selection <= teams.size())) {
-            throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.size());
-        }
-
-        Team selectedTeam = teams.get(selection - 1);
-
-        // Step 3: Ask for the new name
-
-        System.out.printf("\nChange \"%s\" to: ", selectedTeam.getTeamName());
-        String newTeamName = s.nextLine();
-
-        // Step 4: Change the team name in the database
-
-        updateTeamName.setString(1, newTeamName);
-        updateTeamName.setInt(2, selectedTeam.getId());
-        updateTeamName.executeUpdate();
-
-        // Step 5: Print it
-
-        System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.getTeamName(), newTeamName);
     }
 
     @Override

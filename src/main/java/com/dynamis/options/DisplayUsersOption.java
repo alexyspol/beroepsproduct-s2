@@ -12,14 +12,11 @@ import com.dynamis.App;
 import com.dynamis.SQLFile;
 
 public class DisplayUsersOption implements Option {
-    private SQLFile sql;
 
     @Override
-    public void run(App app) {
+    public void run(App app) throws SQLException {
 
-        sql = new SQLFile("display_users.sql");
-
-        // Step 1: Fetch information from database
+        SQLFile sql = new SQLFile("display_users.sql");
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
             PreparedStatement s = c.prepareStatement(sql.nextStatement());
@@ -27,10 +24,7 @@ public class DisplayUsersOption implements Option {
 
             int i = 1;
 
-            // Step 2: Print it out
-            
             System.out.println();
-
             while(rs.next()) {
                 String studentId = rs.getString("student_id");
                 String firstName = rs.getString("first_name");
@@ -43,25 +37,21 @@ public class DisplayUsersOption implements Option {
                 String teamName = rs.getString("team_name");
 
                 System.out.printf("""
-                        > %d. %s %s
-                            Student ID: %s
-                            Date of Birth: %s
-                            Age: %d
-                            Team: %s
-                            Phone: %s
-                            E-mail: %s
-                            Residence: %s
-                            Skill: %s
+                    > %d. %s %s
+                        Student ID: %s
+                        Date of Birth: %s
+                        Age: %d
+                        Team: %s
+                        Phone: %s
+                        E-mail: %s
+                        Residence: %s
+                        Skill: %s
 
                         """, i, firstName, lastName, studentId, dob, calculateAge(dob), teamName, phone, email, residence, skill);
 
                 i++;
             }
         }
-        catch(SQLException e) {
-
-        }
-
     }
 
     private int calculateAge(String dob) {
