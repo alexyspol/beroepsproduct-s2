@@ -60,12 +60,18 @@ public class EditTeamOption implements Option {
 
             System.out.printf("\nChange team name (%s): ", selectedTeam.get("team_name"));
             String newTeamName = s.nextLine();
-    
-            changeTeamName.setString(1, newTeamName);
-            changeTeamName.setInt(2, (int) selectedTeam.get("team_id"));
-            changeTeamName.executeUpdate();
 
-            System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.get("team_name"), newTeamName);
+            if(!newTeamName.isEmpty()) {
+                changeTeamName.setString(1, newTeamName);
+                changeTeamName.setInt(2, (int) selectedTeam.get("team_id"));
+                changeTeamName.executeUpdate();
+                
+                System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.get("team_name"), newTeamName);
+            }
+            else {
+                System.out.println("\n> No changes made\n");
+            }
+            
         }
     }
 
