@@ -19,6 +19,18 @@ import com.dynamis.validators.ValidatorFactory;
 
 public class EditUserByIdOption implements Option {
 
+    private static String[][] xx = {   // TODO Better variable name
+        { "First name", "first_name" },
+        { "Last name", "last_name" },
+        { "Student ID", "student_id" },
+        { "Date of birth", "dob" },
+        { "Team", "team_name" },
+        { "Phone number", "phone" },
+        { "E-mail", "email" },
+        { "Residence", "residence" },
+        { "Skill", "skill" }
+    };
+
     @Override
     public void run(App app) throws SQLException {
 
@@ -75,7 +87,7 @@ public class EditUserByIdOption implements Option {
 
             // Only continue if you supply the right student ID for this user
 
-            System.out.print("Enter Student ID: ");
+            System.out.print("\nEnter Student ID: ");
             String userInput = s.nextLine().trim();
             if(!(userInput.contentEquals((String) selectedUser.get("student_id")))) {
                 throw new IllegalArgumentException("Invalid student ID: " + userInput);
@@ -102,18 +114,6 @@ public class EditUserByIdOption implements Option {
             }
 
             // Ask for changes
-
-            String[][] xx = {   // TODO Better variable name
-                { "First name", "first_name" },
-                { "Last name", "last_name" },
-                { "Student ID", "student_id" },
-                { "Date of birth", "dob" },
-                { "Team", "team_name" },
-                { "Phone number", "phone" },
-                { "E-mail", "email" },
-                { "Residence", "residence" },
-                { "Skill", "skill" }
-            };
 
             for(String[] x : xx) {
                 String question = x[0];
@@ -170,7 +170,24 @@ public class EditUserByIdOption implements Option {
 
         // Print information
 
-        System.out.println("> Changes made:");
+        if(changes.size() == 0) {
+            System.out.println("\n> No changes made\n");
+            return;
+        }
+
+        System.out.println("\n> Changes made:");
+        for(String[] x : xx) {
+            String label = x[0];
+            String columnName = x[1];
+
+            if(changes.containsKey(columnName)) {
+                String oldValue = (String) selectedUser.get(columnName);
+                String newValue = changes.get(columnName);
+
+                System.out.printf("    %s: \"%s\" to \"%s\"\n", label, oldValue, newValue);
+            }
+        }
+        System.out.println();
     }
 
     @Override
