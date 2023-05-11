@@ -33,7 +33,7 @@ public class EditTeamOption implements Option {
             while(rs.next()) {
                 int teamId = rs.getInt("id");
                 String teamName = rs.getString("team_name");
-    
+
                 Map<String, Object> team = new HashMap<>();
 
                 team.put("team_id", teamId);
@@ -42,19 +42,27 @@ public class EditTeamOption implements Option {
                 teams.add(team);
             }
 
-            System.out.println("\nEdit team:");
-            for(int i = 0; i < teams.size(); i++) {
-                Map<String, Object> team = teams.get(i);
+            int selection;
+            boolean isValidInput;
 
-                System.out.printf("%d. %s\n", i+1, team.get("team_name"));
-            }
+            do {
+                System.out.println("\nEdit team:");
+                for(int i = 0; i < teams.size(); i++) {
+                    Map<String, Object> team = teams.get(i);
 
-            int selection = s.nextInt();
-            s.nextLine(); // consume the previous newline character
+                    System.out.printf("%d. %s\n", i+1, team.get("team_name"));
+                }
 
-            if(!(1 <= selection && selection <= teams.size())) {
-                throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.size());
-            }
+                selection = s.nextInt();
+                s.nextLine(); // consume the previous newline character
+
+                isValidInput = (1 <= selection && selection <= teams.size());
+
+                if(!isValidInput) {
+                    System.out.println("\n> Your answer needs to be between 1 and " + teams.size());
+                }
+
+            } while(!isValidInput);
 
             Map<String, Object> selectedTeam = teams.get(selection - 1);
 
