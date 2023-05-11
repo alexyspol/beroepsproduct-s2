@@ -14,6 +14,8 @@ import java.util.Scanner;
 
 import com.dynamis.App;
 import com.dynamis.SQLFile;
+import com.dynamis.validators.Validator;
+import com.dynamis.validators.ValidatorFactory;
 
 public class EditUserByIdOption implements Option {
 
@@ -118,8 +120,14 @@ public class EditUserByIdOption implements Option {
                 String columnName = x[1];
                 String currentValue = (String) selectedUser.get(columnName);
 
-                System.out.printf("%s (%s): ", question, currentValue);
-                String answer = s.nextLine().trim();
+                Validator validator = ValidatorFactory.create(columnName);
+                String answer;
+
+                do {
+                    System.out.printf("%s (%s): ", question, currentValue);
+                    answer = s.nextLine().trim();
+
+                } while(!answer.isEmpty() && !validator.isValid(answer));
 
                 if(!answer.isEmpty()) {
                     changes.put(columnName, answer);
