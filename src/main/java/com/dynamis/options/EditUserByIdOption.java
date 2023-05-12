@@ -19,18 +19,6 @@ import com.dynamis.validators.ValidatorFactory;
 
 public class EditUserByIdOption implements Option {
 
-    private static String[][] xx = {   // TODO Better variable name
-        { "First name", "first_name" },
-        { "Last name", "last_name" },
-        { "Student ID", "student_id" },
-        { "Date of birth", "dob" },
-        { "Team", "team_name" },
-        { "Phone number", "phone" },
-        { "E-mail", "email" },
-        { "Residence", "residence" },
-        { "Skill", "skill" }
-    };
-
     @Override
     public void run(App app) throws SQLException {
 
@@ -69,30 +57,52 @@ public class EditUserByIdOption implements Option {
             }
 
             // Pick one
+            int selection;
+            boolean isValidInput;
 
-            System.out.println("\nEdit user:");
-            for(int i = 0; i < users.size(); i++) {
-                Map<String, Object> user = users.get(i);
-                System.out.printf("%d. %s %s\n", i+1, user.get("first_name"), user.get("last_name"));
-            }
-    
-            int selection = s.nextInt();
-            s.nextLine(); // consume the previous newline character
+            do {
+                System.out.println("\nEdit user:");
+                for(int i = 0; i < users.size(); i++) {
+                    Map<String, Object> user = users.get(i);
+                    System.out.printf("%d. %s %s\n", i+1, user.get("first_name"), user.get("last_name"));
+                }
+        
+                selection = s.nextInt();
+                s.nextLine(); // consume the previous newline character
 
-            if(!(1 <= selection && selection <= users.size())) {
-                throw new IllegalArgumentException("Your answer needs to be between 1 and " + users.size());
-            }
+                isValidInput = (1 <= selection && selection <= users.size());
 
+                if(!isValidInput) {
+                    System.out.println("\n> Your answer needs to be between 1 and " + users.size());
+                }
+
+            } while(!isValidInput);
+            
             selectedUser = users.get(selection - 1);
 
             // Only continue if you supply the right student ID for this user
 
-            System.out.print("\nEnter Student ID: ");
-            String userInput = s.nextLine().trim();
-            if(!(userInput.contentEquals((String) selectedUser.get("student_id")))) {
-                throw new IllegalArgumentException("Invalid student ID: " + userInput);
-            }
+            int numChances = 3;
+            int numTurns = 0;
+
+            do {
+                System.out.printf("\nEnter %s %s's Student ID to continue: ", selectedUser.get("first_name"), selectedUser.get("last_name"));
+                String userInput = s.nextLine().trim();
+
+                isValidInput = (userInput.contentEquals((String) selectedUser.get("student_id")));
+                numTurns++;
+
+                if(!isValidInput) {
+                    System.out.printf("> Invalid student ID (%d/%d chances)\n", numTurns, numChances);
+                }
+
+            } while(!isValidInput && (numTurns < numChances));
+
             System.out.println();
+
+            if(!isValidInput) {
+                return;
+            }
 
             // Gather all information about the user
 
@@ -100,20 +110,26 @@ public class EditUserByIdOption implements Option {
             selectRelatedInfo.setString(2, (String) selectedUser.get("student_id"));
 
             try(ResultSet rs = selectRelatedInfo.executeQuery()) {
-                String teamName = rs.getString("team_name");
-                String phone = rs.getString("phone");
-                String email = rs.getString("email");
-                String residence = rs.getString("residence");
-                String skill = rs.getString("skill");
-            
-                selectedUser.put("team_name", teamName);
-                selectedUser.put("phone", phone);
-                selectedUser.put("email", email);
-                selectedUser.put("residence", residence);
-                selectedUser.put("skill", skill);
+                selectedUser.put("team_name", rs.getString("team_name"));
+                selectedUser.put("phone", rs.getString("phone"));
+                selectedUser.put("email", rs.getString("email"));
+                selectedUser.put("residence", rs.getString("residence"));
+                selectedUser.put("skill", rs.getString("skill"));
             }
 
             // Ask for changes
+
+            String[][] xx = {   // TODO Better variable name
+                { "First name", "first_name" },
+                { "Last name", "last_name" },
+                { "Student ID", "student_id" }, // TODO Find a way to change this without primary key conflicts.
+                { "Date of birth", "dob" },
+                { "Team", "team_name" },
+                { "Phone number", "phone" },
+                { "E-mail", "email" },
+                { "Residence", "residence" },
+                { "Skill", "skill" }
+            };
 
             for(String[] x : xx) {
                 String question = x[0];
@@ -170,24 +186,45 @@ public class EditUserByIdOption implements Option {
 
         // Print information
 
-        if(changes.size() == 0) {
-            System.out.println("\n> No changes made\n");
-            return;
-        }
+        String[] usersTableColumns = { "first_name", "last_name", "dob" };
+        String[] teamsTableColumns = { "team_name" };
+        String[] contactInfoTableColumns = { "phone", "email", "residence", "skill" };
 
-        System.out.println("\n> Changes made:");
-        for(String[] x : xx) {
-            String label = x[0];
-            String columnName = x[1];
+        Map<String, String[]> tables = new HashMap<>();
+        tables.put("users", usersTableColumns);
+        tables.put("teams", teamsTableColumns);
+        tables.put("contact_info", contactInfoTableColumns);
 
-            if(changes.containsKey(columnName)) {
-                String oldValue = (String) selectedUser.get(columnName);
-                String newValue = changes.get(columnName);
+        boolean tableNameAdded = false;
+        StringBuilder message = new StringBuilder();
 
-                System.out.printf("    %s: \"%s\" to \"%s\"\n", label, oldValue, newValue);
+        for(Map.Entry<String, String[]> entry : tables.entrySet()) {
+            String tableName = entry.getKey();
+            String[] tableColumns = entry.getValue();
+
+            for(String column : tableColumns) {
+                if(changes.containsKey(column)) {
+                    if(!tableNameAdded) {
+                        message.append("    " + tableName + " -> ");
+                        tableNameAdded = true;
+                    }
+                    message.append(column + ", ");
+                }
             }
+
+            if(tableNameAdded) {
+                message.delete(message.length() - 2, message.length());
+                message.append("\n");
+            }
+            tableNameAdded = false;
         }
-        System.out.println();
+
+        if(message.isEmpty()) {
+            System.out.println("\n> No changes made\n");
+        }
+        else {
+            System.out.println("\n> Changes made:\n" + message);
+        }
     }
 
     @Override
