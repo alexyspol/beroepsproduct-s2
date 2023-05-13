@@ -1,7 +1,7 @@
 package com.dynamis.options;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,13 +14,13 @@ public class DisplayTeamsOption implements Option {
     @Override
     public void run(App app) {
 
-        SQLFile sql = new SQLFile("display_teams.sql");
+        String sql = SQLFileReader.readSQLFile("display_teams.sql").get("select_all_teams_users");
 
         // Step 1: Fetch the information from the database
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
             Statement s = c.createStatement();
-            ResultSet rs = s.executeQuery(sql.nextStatement())) {
+            ResultSet rs = s.executeQuery(sql)) {
 
             String currentTeam = "";
             int i = 1;
@@ -37,7 +37,12 @@ public class DisplayTeamsOption implements Option {
                     i++;
                 }
 
-                System.out.println("    " + fullName);
+                if(fullName == null) {
+                    System.out.println("    <No team members>");
+                } else {
+                    System.out.println("    " + fullName);
+                }
+
             }
 
             System.out.println();
