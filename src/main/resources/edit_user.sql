@@ -1,18 +1,27 @@
+-- select_all_users
 SELECT *
 FROM users;
 
+-- select_related_information
 SELECT t.team_name, c.phone, c.email, c.residence, c.skill
 FROM teams t, contact_info c
 WHERE t.id = ? AND c.student_id = ?;
 
+-- update_user
 UPDATE users
 SET first_name = ?, last_name = ?, dob = ?
 WHERE student_id = ?;
 
-UPDATE teams
-SET team_name = ?
-WHERE id = ?;
+-- change_team
+UPDATE users
+SET team_id = (
+  SELECT id
+  FROM teams
+  WHERE team_name = ?
+)
+WHERE student_id = ?;
 
+-- update_contact_info
 UPDATE contact_info
 SET phone = ?, email = ?, residence = ?, skill = ?
 WHERE student_id = ?;
