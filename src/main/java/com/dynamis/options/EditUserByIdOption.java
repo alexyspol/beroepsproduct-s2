@@ -13,9 +13,15 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
+import com.dynamis.Triple;
 import com.dynamis.validators.Validator;
-import com.dynamis.validators.ValidatorFactory;
+import com.dynamis.validators.DateValidator;
+import com.dynamis.validators.EmailValidator;
+import com.dynamis.validators.NoneValidator;
+import com.dynamis.validators.PhoneNumberValidator;
+import com.dynamis.validators.StudentIdValidator;
+import com.dynamis.validators.TeamExistsValidator;
 
 public class EditUserByIdOption implements Option {
 
@@ -23,17 +29,17 @@ public class EditUserByIdOption implements Option {
     public void run(App app) throws SQLException {
 
         Scanner s = new Scanner(new BufferedInputStream(System.in));
-        SQLFile sql = new SQLFile("edit_user.sql");
+        Map<String, String> sql = SQLFileReader.readSQLFile("edit_user.sql");
 
         Map<String, Object> selectedUser;
         Map<String, String> changes = new HashMap<>();
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement selectAllUsers = c.prepareStatement(sql.nextStatement());
-            PreparedStatement selectRelatedInfo = c.prepareStatement(sql.nextStatement());
-            PreparedStatement updateUser = c.prepareStatement(sql.nextStatement());
-            PreparedStatement updateTeam = c.prepareStatement(sql.nextStatement());
-            PreparedStatement updateContactInfo = c.prepareStatement(sql.nextStatement())) {
+            PreparedStatement selectAllUsers = c.prepareStatement(sql.get("select_all_users"));
+            PreparedStatement selectRelatedInfo = c.prepareStatement(sql.get("select_related_information"));
+            PreparedStatement updateUser = c.prepareStatement(sql.get("update_user"));
+            PreparedStatement changeTeam = c.prepareStatement(sql.get("change_team"));
+            PreparedStatement updateContactInfo = c.prepareStatement(sql.get("update_contact_info"))) {
 
             List<Map<String, Object>> users = new ArrayList<>();
 
@@ -119,33 +125,32 @@ public class EditUserByIdOption implements Option {
 
             // Ask for changes
 
-            String[][] xx = {   // TODO Better variable name
-                { "First name", "first_name" },
-                { "Last name", "last_name" },
-                { "Student ID", "student_id" }, // TODO Find a way to change this without primary key conflicts.
-                { "Date of birth", "dob" },
-                { "Team", "team_name" },
-                { "Phone number", "phone" },
-                { "E-mail", "email" },
-                { "Residence", "residence" },
-                { "Skill", "skill" }
-            };
+            List<Triple> xx = new ArrayList<>(); // TODO Better variable name
+            xx.add(new Triple("First name", "first_name", new NoneValidator()));
+            xx.add(new Triple("Last name", "last_name", new NoneValidator()));
+            xx.add(new Triple("Student ID", "student_id", new StudentIdValidator())); // TODO Find a way to change this without primary key conflicts.
+            xx.add(new Triple("Date of Birth", "dob", new DateValidator()));
+            xx.add(new Triple("Team", "team_name", new TeamExistsValidator()));
+            xx.add(new Triple("Phone number", "phone", new PhoneNumberValidator()));
+            xx.add(new Triple("E-mail", "email", new EmailValidator()));
+            xx.add(new Triple("Residence", "residence", new NoneValidator()));
+            xx.add(new Triple("Skill", "skill", new NoneValidator()));
 
-            for(String[] x : xx) {
-                String question = x[0];
-                String columnName = x[1];
+            for(Triple x : xx) {
+                String request = x.getRequest();
+                String columnName = x.getColumnName();
                 String currentValue = (String) selectedUser.get(columnName);
+                Validator validator = x.getValidator();
 
-                Validator validator = ValidatorFactory.create(columnName);
                 String answer;
 
                 do {
-                    System.out.printf("%s (%s): ", question, currentValue);
+                    System.out.printf("%s (%s): ", request, currentValue);
                     answer = s.nextLine().trim();
 
                 } while(!answer.isEmpty() && !validator.isValid(answer));
 
-                if(!answer.isEmpty()) {
+                if(!answer.isEmpty() && !answer.equals(selectedUser.get(columnName)) ) {
                     changes.put(columnName, answer);
                 }
             }
@@ -168,11 +173,11 @@ public class EditUserByIdOption implements Option {
             updateUser.setString(4, (String) merged.get("student_id"));
             updateUser.executeUpdate();
 
-            // Update teams table
+            // Change team
 
-            updateTeam.setString(1, (String) merged.get("team_name"));
-            updateTeam.setInt(2, (int) merged.get("team_id"));
-            updateTeam.executeUpdate();
+            changeTeam.setString(1, (String) merged.get("team_name"));
+            changeTeam.setString(2, (String) merged.get("student_id"));
+            changeTeam.executeUpdate();
 
             // Update contact_info table
 
@@ -184,47 +189,9 @@ public class EditUserByIdOption implements Option {
             updateContactInfo.executeUpdate();
         }
 
-        // Print information
+        // Print number of changes made
 
-        String[] usersTableColumns = { "first_name", "last_name", "dob" };
-        String[] teamsTableColumns = { "team_name" };
-        String[] contactInfoTableColumns = { "phone", "email", "residence", "skill" };
-
-        Map<String, String[]> tables = new HashMap<>();
-        tables.put("users", usersTableColumns);
-        tables.put("teams", teamsTableColumns);
-        tables.put("contact_info", contactInfoTableColumns);
-
-        boolean tableNameAdded = false;
-        StringBuilder message = new StringBuilder();
-
-        for(Map.Entry<String, String[]> entry : tables.entrySet()) {
-            String tableName = entry.getKey();
-            String[] tableColumns = entry.getValue();
-
-            for(String column : tableColumns) {
-                if(changes.containsKey(column)) {
-                    if(!tableNameAdded) {
-                        message.append("    " + tableName + " -> ");
-                        tableNameAdded = true;
-                    }
-                    message.append(column + ", ");
-                }
-            }
-
-            if(tableNameAdded) {
-                message.delete(message.length() - 2, message.length());
-                message.append("\n");
-            }
-            tableNameAdded = false;
-        }
-
-        if(message.isEmpty()) {
-            System.out.println("\n> No changes made\n");
-        }
-        else {
-            System.out.println("\n> Changes made:\n" + message);
-        }
+        System.out.printf("\n> %d changes made\n\n", changes.size());
     }
 
     @Override
