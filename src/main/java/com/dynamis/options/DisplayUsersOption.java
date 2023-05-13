@@ -9,17 +9,17 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
 
 public class DisplayUsersOption implements Option {
 
     @Override
     public void run(App app) throws SQLException {
 
-        SQLFile sql = new SQLFile("display_users.sql");
+        String sql = SQLFileReader.readSQLFile("display_users.sql").get("select_everything");
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement s = c.prepareStatement(sql.nextStatement());
+            PreparedStatement s = c.prepareStatement(sql);
             ResultSet rs = s.executeQuery()) {
 
             int i = 1;

@@ -1,3 +1,4 @@
+-- select_everything
 SELECT u.student_id, u.first_name, u.last_name, u.dob,
        c.phone, c.email, c.residence, c.skill,
        t.team_name
