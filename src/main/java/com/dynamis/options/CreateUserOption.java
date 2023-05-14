@@ -17,6 +17,7 @@ import com.dynamis.utils.SQLFileReader;
 import com.dynamis.utils.Triple;
 import com.dynamis.validators.DateString;
 import com.dynamis.validators.Email;
+import com.dynamis.validators.EmptyAllowed;
 import com.dynamis.validators.IsNotEmpty;
 import com.dynamis.validators.PhoneNumber;
 import com.dynamis.validators.StringValidator;
@@ -40,9 +41,9 @@ public class CreateUserOption implements Option {
         xx.add(new Triple("Last name", "last_name", new IsNotEmpty(new StringValidator())));
         xx.add(new Triple("Student ID", "student_id", new StudentID(new StringValidator())));
         xx.add(new Triple("Date of Birth", "dob", new DateString(new StringValidator())));
-        xx.add(new Triple("Team", "team_name", new TeamExists(new StringValidator())));
-        xx.add(new Triple("Phone number", "phone", new PhoneNumber(new StringValidator())));
-        xx.add(new Triple("E-mail", "email", new Email(new StringValidator())));
+        xx.add(new Triple("Add to team", "team_name", new TeamExists(new StringValidator())));
+        xx.add(new Triple("Phone number", "phone", new EmptyAllowed(new PhoneNumber(new StringValidator()))));
+        xx.add(new Triple("E-mail", "email", new EmptyAllowed(new Email(new StringValidator()))));
         xx.add(new Triple("Residence", "residence", new StringValidator()));
         xx.add(new Triple("Skill", "skill", new StringValidator()));
         
@@ -53,17 +54,13 @@ public class CreateUserOption implements Option {
             String columnName = x.getColumnName();
             Validator validator = x.getValidator();
 
-            String answer;
-
             do {
                 System.out.printf("%s: ", request);
-                answer = s.nextLine().trim();
-
-                validator.setValue(answer);
+                validator.setValue(s.nextLine().trim());
 
             } while(!validator.isValid());
 
-            newUser.put(columnName, answer);
+            newUser.put(columnName, (String) validator.getValue());
         }
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
