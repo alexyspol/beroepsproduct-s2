@@ -47,7 +47,7 @@ public class DisplayUsersOption implements Option {
                         Residence: %s
                         Skill: %s
 
-                        """, i, firstName, lastName, studentId, dob, calculateAge(dob), filter(teamName), filter(phone), filter(email), filter(residence), filter(skill));
+                        """, i, firstName, lastName, studentId.toUpperCase(), dob, calculateAge(dob), filter(teamName), filter(phone), filter(email), filter(residence), filter(skill));
 
                 i++;
             }
