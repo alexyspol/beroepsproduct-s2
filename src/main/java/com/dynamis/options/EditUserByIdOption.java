@@ -14,14 +14,14 @@ import java.util.Scanner;
 
 import com.dynamis.App;
 import com.dynamis.SQLFileReader;
-import com.dynamis.Triple;
-import com.dynamis.validators.Validator;
-import com.dynamis.validators.DateValidator;
-import com.dynamis.validators.EmailValidator;
-import com.dynamis.validators.NoneValidator;
-import com.dynamis.validators.PhoneNumberValidator;
-import com.dynamis.validators.StudentIdValidator;
-import com.dynamis.validators.TeamExistsValidator;
+import com.dynamis.Triplee;
+import com.dynamis.validators.decorators.DateString;
+import com.dynamis.validators.decorators.Email;
+import com.dynamis.validators.decorators.PhoneNumber;
+import com.dynamis.validators.decorators.StudentID;
+import com.dynamis.validators.decorators.TeamExists;
+import com.dynamis.validators.IValidator;
+import com.dynamis.validators.StringValidator;
 
 public class EditUserByIdOption implements Option {
 
@@ -125,30 +125,31 @@ public class EditUserByIdOption implements Option {
 
             // Ask for changes
 
-            List<Triple> xx = new ArrayList<>(); // TODO Better variable name
-            xx.add(new Triple("First name", "first_name", new NoneValidator()));
-            xx.add(new Triple("Last name", "last_name", new NoneValidator()));
-            xx.add(new Triple("Student ID", "student_id", new StudentIdValidator())); // TODO Find a way to change this without primary key conflicts.
-            xx.add(new Triple("Date of Birth", "dob", new DateValidator()));
-            xx.add(new Triple("Team", "team_name", new TeamExistsValidator()));
-            xx.add(new Triple("Phone number", "phone", new PhoneNumberValidator()));
-            xx.add(new Triple("E-mail", "email", new EmailValidator()));
-            xx.add(new Triple("Residence", "residence", new NoneValidator()));
-            xx.add(new Triple("Skill", "skill", new NoneValidator()));
+            List<Triplee> xx = new ArrayList<>(); // TODO Better variable name
+            xx.add(new Triplee("First name", "first_name", new StringValidator()));
+            xx.add(new Triplee("Last name", "last_name", new StringValidator()));
+            xx.add(new Triplee("Student ID", "student_id", new StudentID(new StringValidator()))); // TODO Find a way to change this without primary key conflicts.
+            xx.add(new Triplee("Date of Birth", "dob", new DateString(new StringValidator())));
+            xx.add(new Triplee("Team", "team_name", new TeamExists(new StringValidator())));
+            xx.add(new Triplee("Phone number", "phone", new PhoneNumber(new StringValidator())));
+            xx.add(new Triplee("E-mail", "email", new Email(new StringValidator())));
+            xx.add(new Triplee("Residence", "residence", new StringValidator()));
+            xx.add(new Triplee("Skill", "skill", new StringValidator()));
 
-            for(Triple x : xx) {
+            for(Triplee x : xx) {
                 String request = x.getRequest();
                 String columnName = x.getColumnName();
                 String currentValue = (String) selectedUser.get(columnName);
-                Validator validator = x.getValidator();
+                IValidator validator = x.getValidator();
 
                 String answer;
 
                 do {
                     System.out.printf("%s (%s): ", request, currentValue);
                     answer = s.nextLine().trim();
+                    validator.setValue(answer);
 
-                } while(!answer.isEmpty() && !validator.isValid(answer));
+                } while(!answer.isEmpty() && !validator.isValid());
 
                 if(!answer.isEmpty() && !answer.equals(selectedUser.get(columnName)) ) {
                     changes.put(columnName, answer);
