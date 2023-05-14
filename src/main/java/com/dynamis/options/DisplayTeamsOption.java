@@ -38,7 +38,7 @@ public class DisplayTeamsOption implements Option {
                 }
 
                 if(fullName == null) {
-                    System.out.println("    <No team members>");
+                    System.out.println("    ---");
                 } else {
                     System.out.println("    " + fullName);
                 }
