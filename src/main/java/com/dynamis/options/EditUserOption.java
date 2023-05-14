@@ -23,7 +23,7 @@ import com.dynamis.validators.StringValidator;
 import com.dynamis.validators.StudentID;
 import com.dynamis.validators.TeamExists;
 
-public class EditUserByIdOption implements Option {
+public class EditUserOption implements Option {
 
     @Override
     public void run(App app) throws SQLException {
