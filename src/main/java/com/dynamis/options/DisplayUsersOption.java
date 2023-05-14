@@ -47,7 +47,7 @@ public class DisplayUsersOption implements Option {
                         Residence: %s
                         Skill: %s
 
-                        """, i, firstName, lastName, studentId, dob, calculateAge(dob), teamName, phone, email, residence, skill);
+                        """, i, firstName, lastName, studentId, dob, calculateAge(dob), filterNulls(teamName), phone, email, residence, skill);
 
                 i++;
             }
@@ -58,6 +58,15 @@ public class DisplayUsersOption implements Option {
         LocalDate birthDate = LocalDate.parse(dob);
         LocalDate currentDate = LocalDate.now();
         return Period.between(birthDate, currentDate).getYears();
+    }
+
+    private String filterNulls(String str) {
+        if(str == null) {
+            return "---";
+        }
+        else {
+            return str;
+        }
     }
 
     @Override
