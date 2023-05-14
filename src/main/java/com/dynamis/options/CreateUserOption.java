@@ -6,12 +6,17 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
+import com.dynamis.Triplee;
+import com.dynamis.validators.*;
+import com.dynamis.validators.decorators.*;
 
 public class CreateUserOption implements Option {
 
@@ -19,117 +24,73 @@ public class CreateUserOption implements Option {
     public void run(App app) throws SQLException {
 
         Scanner s = new Scanner(new BufferedInputStream(System.in));
-        SQLFile sql = new SQLFile("create_user.sql");
+        Map<String, String> sql = SQLFileReader.readSQLFile("create_user.sql");
+        Map<String, Object> newUser = new HashMap<>();
 
         // Ask for information
 
+        List<Triplee> xx = new ArrayList<>(); // TODO Better variable name
+        xx.add(new Triplee("First name", "first_name", new IsNotEmpty(new StringValidator())));
+        xx.add(new Triplee("Last name", "last_name", new IsNotEmpty(new StringValidator())));
+        xx.add(new Triplee("Student ID", "student_id", new StudentID(new StringValidator())));
+        xx.add(new Triplee("Date of Birth", "dob", new DateString(new StringValidator())));
+        xx.add(new Triplee("Team", "team_name", new TeamExists(new StringValidator())));
+        xx.add(new Triplee("Phone number", "phone", new PhoneNumber(new StringValidator())));
+        xx.add(new Triplee("E-mail", "email", new Email(new StringValidator())));
+        xx.add(new Triplee("Residence", "residence", new StringValidator()));
+        xx.add(new Triplee("Skill", "skill", new StringValidator()));
+        
         System.out.println();
 
-        System.out.print("First name: ");
-        String firstName = s.nextLine().trim();
-        if(firstName.isEmpty()) {
-            throw new IllegalArgumentException("First name cannot be blank");
+        for(Triplee x : xx) {
+            String request = x.getRequest();
+            String columnName = x.getColumnName();
+            IValidator validator = x.getValidator();
+
+            String answer;
+
+            do {
+                System.out.printf("%s: ", request);
+                answer = s.nextLine().trim();
+
+                validator.setValue(answer);
+
+            } while(!validator.isValid());
+
+            newUser.put(columnName, answer);
         }
-
-        System.out.print("Last name: ");
-        String lastName = s.nextLine().trim();
-        if(lastName.isEmpty()) {
-            throw new IllegalArgumentException("Last name cannot be blank");
-        }
-
-        System.out.print("Student ID: ");
-        String studentId = s.nextLine().trim().toUpperCase();
-        if(studentId.isEmpty()) {
-            throw new IllegalArgumentException("Student ID cannot be blank");
-        }
-        if(!studentId.matches("^[A-Z]{2}/\\d{4}/\\d{3}$")) {
-            throw new IllegalArgumentException("Invalid Student ID format");
-        }
-
-        System.out.print("Date of birth (yyyy-mm-dd): ");
-        String dob = s.nextLine().trim();
-        LocalDate.parse(dob); // will throw if invalid
-
-        System.out.print("Team name: ");
-        String teamName = s.nextLine().trim();
-        if(teamName.isEmpty()) {
-            throw new IllegalArgumentException("User must be assigned to a team");
-        }
-
-        System.out.print("Phone number: (+597) ");
-        String phone = s.nextLine().trim();
-        if(!phone.matches("0\\d{3}-\\d{4}|0\\d{7}|\\d{3}-\\d{4}|\\d{7}")) {
-            throw new IllegalArgumentException("Invalid phone number format. Valid formats are 0xxx-xxxx, xxx-xxxx or xxxxxxx (7 digits)");
-        }
-
-        System.out.print("E-mail: ");
-        String email = s.nextLine().trim();
-        if(!email.matches("^[\\w._-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
-            throw new IllegalArgumentException("Invalid email address");
-        }
-
-        System.out.print("Residence: ");
-        String residence = s.nextLine().trim();
-
-        // TODO Make sure the input really is just one skill
-        System.out.print("Skill (only one): ");
-        String skill = s.nextLine().trim();
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement findOutIfTeamExists = c.prepareStatement(sql.nextStatement());
-            PreparedStatement createNewTeam = c.prepareStatement(sql.nextStatement(), Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement createNewUser = c.prepareStatement(sql.nextStatement());
-            PreparedStatement saveContactInfo = c.prepareStatement(sql.nextStatement())) {
+            PreparedStatement selectTeam = c.prepareStatement(sql.get("select_team_by_id"));
+            PreparedStatement createNewUser = c.prepareStatement(sql.get("create_new_user"));
+            PreparedStatement saveContactInfo = c.prepareStatement(sql.get("save_contact_info"))) {
 
-            int teamId;
+            selectTeam.setString(1, (String) newUser.get("team_name"));
 
-            findOutIfTeamExists.setString(1, teamName);
-            try(ResultSet rs = findOutIfTeamExists.executeQuery()) {
-                teamId = rs.getInt("id");
-            }
-
-            // Only add the team to the teams table if it doesn't already exist
-
-            if(teamId == 0) {
-                createNewTeam.setString(1, teamName);
-                createNewTeam.executeUpdate();
-            
-                try(ResultSet generatedKeys = createNewTeam.getGeneratedKeys()) {
-                    teamId = generatedKeys.getInt(1);
-                }
+            try(ResultSet rs2 = selectTeam.executeQuery()) {
+                newUser.put("team_id", rs2.getInt("id"));
             }
 
             // Insert into users table
 
-            createNewUser.setString(1, studentId);
-            createNewUser.setString(2, firstName);
-            createNewUser.setString(3, lastName);
-            createNewUser.setString(4, dob);
-            createNewUser.setInt(5, teamId);
+            createNewUser.setString(1, (String) newUser.get("student_id"));
+            createNewUser.setString(2, (String) newUser.get("first_name"));
+            createNewUser.setString(3, (String) newUser.get("last_name"));
+            createNewUser.setString(4, (String) newUser.get("dob"));
+            createNewUser.setInt(5, (int) newUser.get("team_id"));
             createNewUser.executeUpdate();
 
-            // Insert into contact_info table
+            // // Insert into contact_info table
 
-            saveContactInfo.setString(1, studentId);
-            saveContactInfo.setString(2, phone);
-            saveContactInfo.setString(3, email);
-            saveContactInfo.setString(4, residence);
-            saveContactInfo.setString(5, skill);
+            saveContactInfo.setString(1, (String) newUser.get("student_id"));
+            saveContactInfo.setString(2, (String) newUser.get("phone"));
+            saveContactInfo.setString(3, (String) newUser.get("email"));
+            saveContactInfo.setString(4, (String) newUser.get("residence"));
+            saveContactInfo.setString(5, (String) newUser.get("skill"));
             saveContactInfo.executeUpdate();
         }
 
-        System.out.printf("""
-
-        > Created new user: %s %s
-            Student ID: %s
-            Date of birth: %s
-            Team: %s
-            Phone number: (+597) %s
-            E-mail address: %s
-            Residence: %s
-            Skill: %s
-
-        """, firstName, lastName, studentId, dob, teamName, phone, email, residence, skill);
+        System.out.println("\n> User created\n");
     }
 
     @Override
