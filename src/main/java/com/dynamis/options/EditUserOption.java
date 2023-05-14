@@ -179,7 +179,8 @@ public class EditUserOption implements Option {
 
         // Print number of changes made
 
-        System.out.printf("\n> %d changes made\n\n", changes.size());
+        String word = changes.size() == 1 ? "change" : "changes";
+        System.out.printf("\n> %d %s made\n\n", changes.size(), word);
     }
 
     @Override
