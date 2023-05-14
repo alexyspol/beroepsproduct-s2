@@ -35,6 +35,7 @@ public class CreateTeamOption implements Option {
                 teams.add(rs.getString("team_name"));
             }
 
+            System.out.println();
             Validator validator = new UniqueTeamName(new StringValidator());
 
             do {
