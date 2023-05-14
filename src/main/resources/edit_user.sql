@@ -4,8 +4,8 @@ FROM users;
 
 -- select_related_information
 SELECT t.team_name, c.phone, c.email, c.residence, c.skill
-FROM teams t, contact_info c
-WHERE t.id = ? AND c.student_id = ?;
+FROM users u, teams t, contact_info c
+WHERE u.student_id = ? AND t.id = ? AND c.student_id = ?;
 
 -- update_user
 UPDATE users
