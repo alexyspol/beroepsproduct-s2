@@ -17,7 +17,7 @@ public class UniqueTeamName extends BaseValidatorDecorator {
         boolean exists = false;
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) FROM teams WHERE team_name = '" + getValue() + "'");
+            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) FROM teams WHERE UPPER(team_name) = UPPER('" + getValue() + "')");
             ResultSet rs = stmt.executeQuery()) {
             exists = (rs.getInt(1) > 0);
         }
