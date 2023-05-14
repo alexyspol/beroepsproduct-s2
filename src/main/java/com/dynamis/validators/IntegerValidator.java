@@ -1,6 +1,6 @@
 package com.dynamis.validators;
 
-public class IntegerValidator implements IValidator {
+public class IntegerValidator implements Validator {
 
     protected Object value;
 

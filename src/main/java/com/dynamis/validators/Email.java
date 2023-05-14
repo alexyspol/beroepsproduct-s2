@@ -1,10 +1,8 @@
-package com.dynamis.validators.decorators;
-
-import com.dynamis.validators.IValidator;
+package com.dynamis.validators;
 
 public class Email extends BaseValidatorDecorator {
 
-    public Email(IValidator validator) {
+    public Email(Validator validator) {
         super(validator);
     }
 

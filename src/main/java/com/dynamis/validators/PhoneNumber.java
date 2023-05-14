@@ -1,10 +1,8 @@
-package com.dynamis.validators.decorators;
-
-import com.dynamis.validators.IValidator;
+package com.dynamis.validators;
 
 public class PhoneNumber extends BaseValidatorDecorator {
 
-    public PhoneNumber(IValidator validator) {
+    public PhoneNumber(Validator validator) {
         super(validator);
     }
 

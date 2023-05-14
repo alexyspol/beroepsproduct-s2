@@ -1,12 +1,10 @@
-package com.dynamis.validators.decorators;
+package com.dynamis.validators;
 
-import com.dynamis.validators.IValidator;
+public abstract class BaseValidatorDecorator implements Validator {
 
-public abstract class BaseValidatorDecorator implements IValidator {
+    protected Validator validator;
 
-    protected IValidator validator;
-
-    public BaseValidatorDecorator(IValidator validator) {
+    public BaseValidatorDecorator(Validator validator) {
         this.validator = validator;
     }
 

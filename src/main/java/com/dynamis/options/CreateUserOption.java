@@ -14,9 +14,15 @@ import java.util.Scanner;
 
 import com.dynamis.App;
 import com.dynamis.SQLFileReader;
-import com.dynamis.Triplee;
-import com.dynamis.validators.*;
-import com.dynamis.validators.decorators.*;
+import com.dynamis.Triple;
+import com.dynamis.validators.DateString;
+import com.dynamis.validators.Email;
+import com.dynamis.validators.IsNotEmpty;
+import com.dynamis.validators.PhoneNumber;
+import com.dynamis.validators.StringValidator;
+import com.dynamis.validators.StudentID;
+import com.dynamis.validators.TeamExists;
+import com.dynamis.validators.Validator;
 
 public class CreateUserOption implements Option {
 
@@ -29,23 +35,23 @@ public class CreateUserOption implements Option {
 
         // Ask for information
 
-        List<Triplee> xx = new ArrayList<>(); // TODO Better variable name
-        xx.add(new Triplee("First name", "first_name", new IsNotEmpty(new StringValidator())));
-        xx.add(new Triplee("Last name", "last_name", new IsNotEmpty(new StringValidator())));
-        xx.add(new Triplee("Student ID", "student_id", new StudentID(new StringValidator())));
-        xx.add(new Triplee("Date of Birth", "dob", new DateString(new StringValidator())));
-        xx.add(new Triplee("Team", "team_name", new TeamExists(new StringValidator())));
-        xx.add(new Triplee("Phone number", "phone", new PhoneNumber(new StringValidator())));
-        xx.add(new Triplee("E-mail", "email", new Email(new StringValidator())));
-        xx.add(new Triplee("Residence", "residence", new StringValidator()));
-        xx.add(new Triplee("Skill", "skill", new StringValidator()));
+        List<Triple> xx = new ArrayList<>(); // TODO Better variable name
+        xx.add(new Triple("First name", "first_name", new IsNotEmpty(new StringValidator())));
+        xx.add(new Triple("Last name", "last_name", new IsNotEmpty(new StringValidator())));
+        xx.add(new Triple("Student ID", "student_id", new StudentID(new StringValidator())));
+        xx.add(new Triple("Date of Birth", "dob", new DateString(new StringValidator())));
+        xx.add(new Triple("Team", "team_name", new TeamExists(new StringValidator())));
+        xx.add(new Triple("Phone number", "phone", new PhoneNumber(new StringValidator())));
+        xx.add(new Triple("E-mail", "email", new Email(new StringValidator())));
+        xx.add(new Triple("Residence", "residence", new StringValidator()));
+        xx.add(new Triple("Skill", "skill", new StringValidator()));
         
         System.out.println();
 
-        for(Triplee x : xx) {
+        for(Triple x : xx) {
             String request = x.getRequest();
             String columnName = x.getColumnName();
-            IValidator validator = x.getValidator();
+            Validator validator = x.getValidator();
 
             String answer;
 

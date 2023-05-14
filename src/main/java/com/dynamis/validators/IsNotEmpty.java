@@ -1,10 +1,8 @@
-package com.dynamis.validators.decorators;
-
-import com.dynamis.validators.IValidator;
+package com.dynamis.validators;
 
 public class IsNotEmpty extends BaseValidatorDecorator {
 
-    public IsNotEmpty(IValidator validator) {
+    public IsNotEmpty(Validator validator) {
         super(validator);
     }
 

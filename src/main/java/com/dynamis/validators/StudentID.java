@@ -1,10 +1,8 @@
-package com.dynamis.validators.decorators;
-
-import com.dynamis.validators.IValidator;
+package com.dynamis.validators;
 
 public class StudentID extends BaseValidatorDecorator {
 
-    public StudentID(IValidator validator) {
+    public StudentID(Validator validator) {
         super(validator);
     }
 

@@ -1,12 +1,10 @@
-package com.dynamis.validators.decorators;
+package com.dynamis.validators;
 
 import java.time.LocalDate;
 
-import com.dynamis.validators.IValidator;
-
 public class DateString extends BaseValidatorDecorator {
 
-    public DateString(IValidator validator) {
+    public DateString(Validator validator) {
         super(validator);
     }
 
