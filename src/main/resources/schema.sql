@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT,
     last_name TEXT,
     dob TEXT,
-    team_id INTEGER REFERENCES teams(id)
+    team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL
 );
 
 -- create_teams_table

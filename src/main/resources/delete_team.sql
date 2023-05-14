@@ -1,12 +1,5 @@
-
+-- select_all_teams
 SELECT * FROM teams;
 
-SELECT student_id, first_name, last_name
-FROM users
-WHERE team_id = ?;
-
+-- delete_single_team
 DELETE FROM teams WHERE id = ?;
-
-DELETE FROM users WHERE team_id = ?;
-
-DELETE FROM contact_info WHERE student_id = ?;

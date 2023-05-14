@@ -13,7 +13,10 @@ import java.util.Scanner;
 import java.sql.SQLException;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
+import com.dynamis.validators.InRange;
+import com.dynamis.validators.IntegerValidator;
+import com.dynamis.validators.Validator;
 
 public class DeleteTeamOption implements Option {
 
@@ -21,77 +24,51 @@ public class DeleteTeamOption implements Option {
     public void run(App app) throws SQLException {
 
         Scanner s = new Scanner(new BufferedInputStream(System.in));
-        SQLFile sql = new SQLFile("delete_team.sql");
+        Map<String, String> sql = SQLFileReader.readSQLFile("delete_team.sql");
 
         Map<String, Object> selectedTeam = null;
-        List<Map<String, Object>> teamMembers = new ArrayList<>();
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement selectAllTeams = c.prepareStatement(sql.nextStatement());
-            PreparedStatement selectTeamMembers = c.prepareStatement(sql.nextStatement());
-            PreparedStatement deleteSelectedTeam = c.prepareStatement(sql.nextStatement());
-            PreparedStatement deleteTeamMembers = c.prepareStatement(sql.nextStatement());
-            PreparedStatement deleteContactInfo = c.prepareStatement(sql.nextStatement());
+            PreparedStatement selectAllTeams = c.prepareStatement(sql.get("select_all_teams"));
+            PreparedStatement deleteTeam = c.prepareStatement(sql.get("delete_single_team"));
             ResultSet rs = selectAllTeams.executeQuery()) {
 
             List<Map<String, Object>> teams = new ArrayList<>();
 
             while(rs.next()) {
-                int teamId = rs.getInt("id");
-                String teamName = rs.getString("team_name");
-
                 Map<String, Object> team = new HashMap<>();
-                team.put("team_id", teamId);
-                team.put("team_name", teamName);
-
+                team.put("team_id", rs.getInt("id"));
+                team.put("team_name", rs.getString("team_name"));
                 teams.add(team);
             }
 
-            System.out.println("\nRemove:");
-            for(int i = 0; i < teams.size(); i++) {
-                Map<String, Object> team = teams.get(i);
-                System.out.printf("%d. %s\n", i+1, (String) team.get("team_name"));
-            }
+            // Ask which team to delete
 
-            int selection = s.nextInt();
-            s.nextLine(); // consume the previous newline character
+            Validator validator = new InRange(new IntegerValidator(), 1, teams.size());
 
-            if(!(1 <= selection && selection <= teams.size())) {
-                throw new IllegalArgumentException("Your answer needs to be between 1 and " + teams.size());
-            }
-    
-            selectedTeam = teams.get(selection - 1);
-            
-            selectTeamMembers.setInt(1, (int) selectedTeam.get("team_id"));
-            
-            try(ResultSet rs2 = selectTeamMembers.executeQuery()) {
-                while(rs2.next()) {
-                    Map<String, Object> teamMember = new HashMap<>();
-                    teamMember.put("student_id", rs2.getString("student_id"));
-                    teamMember.put("first_name", rs2.getString("first_name"));
-                    teamMember.put("last_name", rs2.getString("last_name"));
-    
-                    teamMembers.add(teamMember);
+            do {
+                System.out.println("\nRemove:");
+                for(int i = 0; i < teams.size(); i++) {
+                    Map<String, Object> team = teams.get(i);
+                    System.out.printf("%d. %s\n", i+1, (String) team.get("team_name"));
                 }
-            }
 
-            deleteSelectedTeam.setInt(1, (int) selectedTeam.get("team_id"));
-            deleteSelectedTeam.executeUpdate();
+                validator.setValue(s.nextInt());
+                s.nextLine(); // consume the previous newline character
 
-            deleteTeamMembers.setInt(1, (int) selectedTeam.get("team_id"));
-            deleteTeamMembers.executeUpdate();
+            } while(!validator.isValid());
 
-            for(Map<String, Object> member : teamMembers) {
-                deleteContactInfo.setString(1, (String) member.get("student_id"));
-                deleteContactInfo.executeUpdate();
-            }
+            selectedTeam = teams.get((int) validator.getValue() - 1);
+
+            // Delete it
+
+            deleteTeam.setInt(1, (int) selectedTeam.get("team_id"));
+            deleteTeam.executeUpdate();
+
+            // Print information
+
+            System.out.println("\n> Team deleted\n");
         }
-
-        System.out.printf("\n> Deleted team: %s\n", selectedTeam.get("team_name"));
-        for(Map<String, Object> member : teamMembers) {
-            System.out.printf("    %s %s (%s)", member.get("first_name"), member.get("last_name"), member.get("student_id"));
-        }
-        System.out.println();
     }
 
     @Override
