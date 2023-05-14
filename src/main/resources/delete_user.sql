@@ -1,17 +1,11 @@
-SELECT u.student_id, u.first_name, u.last_name, u.team_id,
-       t.team_name
-FROM users u, teams t
-WHERE u.team_id = t.id;
+-- select_all_users
+SELECT student_id, first_name, last_name
+FROM users;
 
-SELECT COUNT(u.student_id) AS num_team_members
-FROM users u, teams t
-WHERE u.team_id = ? AND t.id = ?;
-
+-- delete_single_user
 DELETE FROM users
 WHERE student_id = ?;
 
-DELETE FROM teams
-WHERE id = ?;
-
+-- delete_contact_info
 DELETE FROM contact_info
 WHERE student_id = ?;
