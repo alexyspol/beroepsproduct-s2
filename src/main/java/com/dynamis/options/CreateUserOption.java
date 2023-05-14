@@ -23,6 +23,7 @@ import com.dynamis.validators.PhoneNumber;
 import com.dynamis.validators.StringValidator;
 import com.dynamis.validators.StudentID;
 import com.dynamis.validators.TeamExists;
+import com.dynamis.validators.UniqueStudentID;
 import com.dynamis.validators.Validator;
 
 public class CreateUserOption implements Option {
@@ -39,7 +40,7 @@ public class CreateUserOption implements Option {
         List<Triple> xx = new ArrayList<>(); // TODO Better variable name
         xx.add(new Triple("First name", "first_name", new IsNotEmpty(new StringValidator())));
         xx.add(new Triple("Last name", "last_name", new IsNotEmpty(new StringValidator())));
-        xx.add(new Triple("Student ID", "student_id", new StudentID(new StringValidator())));
+        xx.add(new Triple("Student ID", "student_id", new UniqueStudentID(new StudentID(new StringValidator()))));
         xx.add(new Triple("Date of Birth", "dob", new DateString(new StringValidator())));
         xx.add(new Triple("Add to team", "team_name", new TeamExists(new StringValidator())));
         xx.add(new Triple("Phone number", "phone", new EmptyAllowed(new PhoneNumber(new StringValidator()))));
