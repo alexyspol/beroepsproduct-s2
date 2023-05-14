@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.options.CreateTeamOption;
@@ -17,9 +18,12 @@ import com.dynamis.options.DeleteUserOption;
 import com.dynamis.options.DisplayTeamsOption;
 import com.dynamis.options.DisplayUsersOption;
 import com.dynamis.options.EditTeamOption;
-import com.dynamis.options.EditUserByIdOption;
+import com.dynamis.options.EditUserOption;
 import com.dynamis.options.ExitApplicationOption;
 import com.dynamis.options.Option;
+import com.dynamis.validators.InRange;
+import com.dynamis.validators.IntegerValidator;
+import com.dynamis.validators.Validator;
 
 public class App {
 
@@ -46,27 +50,27 @@ public class App {
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
             Statement stmt = c.createStatement()) {
 
-            SQLFile sql = new SQLFile("schema.sql");
-            SQLFile dummy = new SQLFile("dummy_data.sql");
+            Map<String, String> schema = SQLFileReader.readSQLFile("schema.sql");
+            Map<String, String> dummy = SQLFileReader.readSQLFile("dummy_data.sql");
 
             // Create tables
 
-            stmt.executeUpdate(sql.nextStatement());
-            stmt.executeUpdate(sql.nextStatement());
-            stmt.executeUpdate(sql.nextStatement());
+            stmt.executeUpdate(schema.get("create_users_table"));
+            stmt.executeUpdate(schema.get("create_teams_table"));
+            stmt.executeUpdate(schema.get("create_contact_info_table"));
 
             // Insert dummy data
 
-            stmt.executeUpdate(dummy.nextStatement());
-            stmt.executeUpdate(dummy.nextStatement());
-            stmt.executeUpdate(dummy.nextStatement());
+            stmt.executeUpdate(dummy.get("dummy_users"));
+            stmt.executeUpdate(dummy.get("dummy_teams"));
+            stmt.executeUpdate(dummy.get("dummy_contact_info"));
         }
 
         // Add options
 
         this.addOption(new DisplayUsersOption());
         this.addOption(new DisplayTeamsOption());
-        this.addOption(new EditUserByIdOption());
+        this.addOption(new EditUserOption());
         this.addOption(new EditTeamOption());
         this.addOption(new CreateUserOption());
         this.addOption(new CreateTeamOption());
@@ -78,19 +82,20 @@ public class App {
     public void run() throws SQLException {
         Scanner s = new Scanner(new BufferedInputStream(System.in));
 
-        System.out.println("Choose an option:");
-        for(int i = 0; i < this.options.size(); i++) {
-            Option option = options.get(i);
-            System.out.printf("%d. %s\n", i+1, option);
-        }
+        Validator validator = new InRange(new IntegerValidator(), 1, options.size());
 
-        int answer = s.nextInt();
+        do {
+            System.out.println("Choose an option:");
+            for(int i = 0; i < this.options.size(); i++) {
+                Option option = options.get(i);
+                System.out.printf("%d. %s\n", i+1, option);
+            }
+            validator.setValue(s.nextInt());
+            s.nextLine(); // consume the previous newline character
 
-        if(!(1 <= answer && answer <= this.options.size())) {
-            throw new IllegalArgumentException("Your answer needs to be between 1 and " + (this.options.size()));
-        }
+        } while(!validator.isValid());
 
-        this.options.get(answer - 1).run(this);
+        this.options.get((int) validator.getValue() - 1).run(this);
     }
 
     public boolean exitApplication() {

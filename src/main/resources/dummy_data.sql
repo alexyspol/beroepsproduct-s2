@@ -1,3 +1,4 @@
+-- dummy_users
 INSERT INTO users (student_id, first_name, last_name, dob, team_id) VALUES
 ('001', 'John', 'Doe', '1995-07-01', 1),
 ('002', 'Jane', 'Smith', '1996-10-05', 1),
@@ -8,12 +9,14 @@ INSERT INTO users (student_id, first_name, last_name, dob, team_id) VALUES
 ('007', 'Jason', 'Nguyen', '1997-05-18', 4),
 ('008', 'Megan', 'Wong', '1998-08-22', 4);
 
+-- dummy_teams
 INSERT INTO teams (team_name) VALUES
 ('Team A'),
 ('Team B'),
 ('Team C'),
 ('Team D');
 
+-- dummy_contact_info
 INSERT INTO contact_info (student_id, phone, email, residence, skill) VALUES
 ('001', '555-1234', 'johndoe@example.com', '123 Main St, Anytown USA', 'Java'),
 ('002', '555-5678', 'janesmith@example.com', '456 Elm St, Anytown USA', 'Python'),
