@@ -1,7 +1,7 @@
 package com.dynamis.options;
 
 import com.dynamis.App;
-import com.dynamis.SQLFileReader;
+import com.dynamis.utils.SQLFileReader;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

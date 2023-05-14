@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
-import com.dynamis.SQLFileReader;
+import com.dynamis.utils.SQLFileReader;
 import com.dynamis.validators.InRange;
 import com.dynamis.validators.IntegerValidator;
 import com.dynamis.validators.Validator;

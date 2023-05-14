@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.dynamis.App;
-import com.dynamis.SQLFileReader;
+import com.dynamis.utils.SQLFileReader;
 
 public class DisplayUsersOption implements Option {
 

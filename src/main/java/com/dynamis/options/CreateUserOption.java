@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
-import com.dynamis.SQLFileReader;
-import com.dynamis.Triple;
+import com.dynamis.utils.SQLFileReader;
+import com.dynamis.utils.Triple;
 import com.dynamis.validators.DateString;
 import com.dynamis.validators.Email;
 import com.dynamis.validators.IsNotEmpty;

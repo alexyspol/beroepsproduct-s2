@@ -1,4 +1,4 @@
-package com.dynamis;
+package com.dynamis.utils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
