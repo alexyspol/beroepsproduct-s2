@@ -13,7 +13,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.dynamis.App;
-import com.dynamis.SQLFile;
+import com.dynamis.SQLFileReader;
+import com.dynamis.validators.InRange;
+import com.dynamis.validators.IntegerValidator;
+import com.dynamis.validators.StringValidator;
+import com.dynamis.validators.Validator;
+import com.dynamis.validators.UniqueTeamName;
 
 public class EditTeamOption implements Option {
 
@@ -21,11 +26,11 @@ public class EditTeamOption implements Option {
     public void run(App app) throws SQLException {
 
         Scanner s = new Scanner(new BufferedInputStream(System.in));
-        SQLFile sql = new SQLFile("edit_team.sql");
+        Map<String, String> sql = SQLFileReader.readSQLFile("edit_team.sql");
 
         try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            PreparedStatement selectAllTeams = c.prepareStatement(sql.nextStatement());
-            PreparedStatement changeTeamName = c.prepareStatement(sql.nextStatement());
+            PreparedStatement selectAllTeams = c.prepareStatement(sql.get("select_all_teams"));
+            PreparedStatement changeTeamName = c.prepareStatement(sql.get("change_team_name"));
             ResultSet rs = selectAllTeams.executeQuery()) {
 
             List<Map<String, Object>> teams = new ArrayList<>();
@@ -42,44 +47,51 @@ public class EditTeamOption implements Option {
                 teams.add(team);
             }
 
-            int selection;
-            boolean isValidInput;
+            // Select which team to edit
+
+            Validator validator = new InRange(new IntegerValidator(), 1, teams.size());
 
             do {
                 System.out.println("\nEdit team:");
                 for(int i = 0; i < teams.size(); i++) {
                     Map<String, Object> team = teams.get(i);
-
                     System.out.printf("%d. %s\n", i+1, team.get("team_name"));
                 }
 
-                selection = s.nextInt();
+                validator.setValue(s.nextInt());
                 s.nextLine(); // consume the previous newline character
 
-                isValidInput = (1 <= selection && selection <= teams.size());
-
-                if(!isValidInput) {
+                if(!validator.isValid()) {
                     System.out.println("\n> Your answer needs to be between 1 and " + teams.size());
                 }
 
-            } while(!isValidInput);
+            } while(!validator.isValid());
 
-            Map<String, Object> selectedTeam = teams.get(selection - 1);
+            Map<String, Object> selectedTeam = teams.get((int) validator.getValue() - 1);
+            System.out.println();
 
-            System.out.printf("\nChange team name (%s): ", selectedTeam.get("team_name"));
-            String newTeamName = s.nextLine();
+            // Enter new name
+
+            validator = new UniqueTeamName(new StringValidator());
+
+            do {
+                System.out.printf("Change team name (%s): ", selectedTeam.get("team_name"));
+                validator.setValue(s.nextLine());
+
+            } while(!validator.isValid());
+
+            String newTeamName = (String) validator.getValue();
 
             if(!newTeamName.isEmpty()) {
                 changeTeamName.setString(1, newTeamName);
                 changeTeamName.setInt(2, (int) selectedTeam.get("team_id"));
                 changeTeamName.executeUpdate();
                 
-                System.out.printf("\n> Succesfully changed \"%s\" to \"%s\"\n\n", selectedTeam.get("team_name"), newTeamName);
+                System.out.println("\n> Team name changed\n");
             }
             else {
                 System.out.println("\n> No changes made\n");
             }
-            
         }
     }
 
