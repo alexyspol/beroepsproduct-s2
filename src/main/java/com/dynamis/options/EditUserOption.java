@@ -184,7 +184,7 @@ public class EditUserOption implements Option {
 
     @Override
     public String toString() {
-        return "Edit user by id";
+        return "Edit user";
     }
 
 }
