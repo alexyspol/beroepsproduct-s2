@@ -86,7 +86,7 @@ public class App {
         Validator validator = new InRange(new IntegerValidator(), 1, options.size());
 
         do {
-            System.out.println("Choose an option:");
+            System.out.println("\nChoose an option:");
             for(int i = 0; i < this.options.size(); i++) {
                 Option option = options.get(i);
                 System.out.printf("%d. %s\n", i+1, option);
