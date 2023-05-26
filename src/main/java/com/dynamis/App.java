@@ -1,113 +1,132 @@
 package com.dynamis;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
-import com.dynamis.options.CreateTeamOption;
-import com.dynamis.options.CreateUserOption;
-import com.dynamis.options.DeleteTeamOption;
-import com.dynamis.options.DeleteUserOption;
-import com.dynamis.options.DisplayTeamsOption;
-import com.dynamis.options.DisplayUsersOption;
-import com.dynamis.options.EditTeamOption;
-import com.dynamis.options.EditUserOption;
-import com.dynamis.options.ExitApplicationOption;
-import com.dynamis.options.Option;
-import com.dynamis.utils.SQLFileReader;
-import com.dynamis.validators.InRange;
-import com.dynamis.validators.IntegerValidator;
-import com.dynamis.validators.Validator;
+import com.dynamis.controllers.*;
 
 public class App {
 
-    private List<Option> options = new ArrayList<>();
-    private boolean userWantsToExit = false;
+    private static String url = "jdbc:sqlite:hackathon.db";
 
-    public static void main(String[] args) throws SQLException {
+    public boolean quit = false;
+    private List<Controller> controllers = new ArrayList<>();
+    private Scanner scanner = new Scanner(new BufferedInputStream(System.in));
 
+    public static void main(String[] args) {
         App app = new App();
 
-        while(!app.exitApplication()) {
+        while(!app.quit) {
             app.run();
         }
     }
 
-    public App() throws SQLException {
+    public App() {
+        try(Statement statement = DriverManager.getConnection(url).createStatement()) {
+            statement.executeUpdate("""
+                DROP TABLE IF EXISTS users;
+                DROP TABLE IF EXISTS teams;
+                DROP TABLE IF EXISTS contact_info;
+            """);
+            statement.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS users (
+                    student_id TEXT PRIMARY KEY,
+                    first_name TEXT,
+                    last_name TEXT,
+                    dob TEXT,
+                    skill TEXT,
+                    team_id INTEGER REFERENCES teams(team_id) ON DELETE SET NULL
+                );
 
-        File file = new File("hackathon.db");
+                CREATE TABLE IF NOT EXISTS teams (
+                    team_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    team_name TEXT
+                );
 
-        if (file.exists()) {
-            file.delete();
+                CREATE TABLE IF NOT EXISTS contact_info (
+                    student_id TEXT PRIMARY KEY REFERENCES users(student_id),
+                    phone TEXT,
+                    email TEXT,
+                    residence TEXT
+                );
+            """);
+            statement.executeUpdate("""
+                INSERT INTO users (student_id, first_name, last_name, dob, team_id, skill) VALUES
+                ('001', 'John', 'Doe', '1995-07-01', 1, 'Java'),
+                ('002', 'Jane', 'Smith', '1996-10-05', 1, 'Python'),
+                ('003', 'Bob', 'Johnson', '1997-01-15', 2, 'JavaScript'),
+                ('004', 'Sarah', 'Lee', '1998-04-30', 2, 'C#'),
+                ('005', 'David', 'Kim', '1995-09-12', 3, 'PHP'),
+                ('006', 'Emily', 'Garcia', '1996-12-25', 3, 'Ruby'),
+                ('007', 'Jason', 'Nguyen', '1997-05-18', 4, 'Swift'),
+                ('008', 'Megan', 'Wong', '1998-08-22', 4, 'C++');
+
+                INSERT INTO teams (team_name) VALUES
+                ('Team A'),
+                ('Team B'),
+                ('Team C'),
+                ('Team D');
+
+                INSERT INTO contact_info (student_id, phone, email, residence) VALUES
+                ('001', '555-1234', 'johndoe@example.com', '123 Main St, Anytown USA'),
+                ('002', '555-5678', 'janesmith@example.com', '456 Elm St, Anytown USA'),
+                ('003', '555-9876', 'bobjohnson@example.com', '789 Oak St, Anytown USA'),
+                ('004', '555-4321', 'sarahlee@example.com', '321 Pine St, Anytown USA'),
+                ('005', '555-2468', 'davidkim@example.com', '654 Maple St, Anytown USA'),
+                ('006', '555-3690', 'emilygarcia@example.com', '987 Cedar St, Anytown USA'),
+                ('007', '555-1357', 'jasonnguyen@example.com', '246 Birch St, Anytown USA'),
+                ('008', '555-5793', 'meganwong@example.com', '135 Walnut St, Anytown USA');
+            """);
+        }
+        catch(SQLException e) {
+            e.printStackTrace();
         }
 
-        try(Connection c = DriverManager.getConnection("jdbc:sqlite:hackathon.db");
-            Statement stmt = c.createStatement()) {
+        this.controllers.add(new DisplayUsersController("Display list of users", url));
+        this.controllers.add(new DisplayTeamsController("Display list of teams", url));
+        this.controllers.add(new CreateUserController("Create user", url));
+        this.controllers.add(new CreateTeamController("Create team", url));
+        this.controllers.add(new EditUserController("Edit user", url));
+        this.controllers.add(new EditTeamController("Edit team", url));
+        this.controllers.add(new DeleteUserController("Delete user", url));
+        this.controllers.add(new DeleteTeamController("Delete team", url));
+        this.controllers.add(new ExitApplicationController("Exit application", this));
+    }
 
-            Map<String, String> schema = SQLFileReader.readSQLFile("schema.sql");
-            Map<String, String> dummy = SQLFileReader.readSQLFile("dummy_data.sql");
+    public void run() {
 
-            // Create tables
-
-            stmt.executeUpdate(schema.get("create_users_table"));
-            stmt.executeUpdate(schema.get("create_teams_table"));
-            stmt.executeUpdate(schema.get("create_contact_info_table"));
-
-            // Insert dummy data
-
-            stmt.executeUpdate(dummy.get("dummy_users"));
-            stmt.executeUpdate(dummy.get("dummy_teams"));
-            stmt.executeUpdate(dummy.get("dummy_contact_info"));
+        System.out.println("\nChoose an option:");
+        for(int i = 0; i < controllers.size(); i++) {
+            System.out.printf("%d. %s\n", i+1, controllers.get(i));
         }
 
-        // Add options
+        int selected = filter(scanner.nextLine().trim());
 
-        this.addOption(new DisplayUsersOption());
-        this.addOption(new DisplayTeamsOption());
-        this.addOption(new EditUserOption());
-        this.addOption(new EditTeamOption());
-        this.addOption(new CreateUserOption());
-        this.addOption(new CreateTeamOption());
-        this.addOption(new DeleteUserOption());
-        this.addOption(new DeleteTeamOption());
-        this.addOption(new ExitApplicationOption());
+        if(!(1 <= selected && selected <= controllers.size())) {
+            System.out.println("> Please enter a number between 1 and " + controllers.size());
+            return;
+        }
+
+        controllers.get(selected-1).run();
     }
 
-    public void run() throws SQLException {
-        Scanner s = new Scanner(new BufferedInputStream(System.in));
+    // TODO Make this better
+    private static int filter(String str) {
+        int result;
 
-        Validator validator = new InRange(new IntegerValidator(), 1, options.size());
+        try {
+            result = Integer.parseInt(str);
+        }
+        catch(NumberFormatException e) {
+            result = 0;
+        }
 
-        do {
-            System.out.println("\nChoose an option:");
-            for(int i = 0; i < this.options.size(); i++) {
-                Option option = options.get(i);
-                System.out.printf("%d. %s\n", i+1, option);
-            }
-            validator.setValue(s.nextInt());
-            s.nextLine(); // consume the previous newline character
-
-        } while(!validator.isValid());
-
-        this.options.get((int) validator.getValue() - 1).run(this);
+        return result;
     }
 
-    public boolean exitApplication() {
-        return this.userWantsToExit;
-    }
-
-    public void setUserWantsToExit(boolean userWantsToExit) {
-        this.userWantsToExit = userWantsToExit;
-    }
-
-    public void addOption(Option option) {
-        this.options.add(option);
-    }
 }
