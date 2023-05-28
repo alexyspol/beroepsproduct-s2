@@ -105,7 +105,7 @@ public class App {
             System.out.printf("%d. %s\n", i+1, controllers.get(i));
         }
 
-        int selected = filter(scanner.nextLine().trim());
+        int selected = parseInt(scanner.nextLine().trim());
 
         if(!(1 <= selected && selected <= controllers.size())) {
             System.out.println("> Please enter a number between 1 and " + controllers.size());
@@ -115,8 +115,7 @@ public class App {
         controllers.get(selected-1).run();
     }
 
-    // TODO Make this better
-    private static int filter(String str) {
+    private static int parseInt(String str) {
         int result;
 
         try {
