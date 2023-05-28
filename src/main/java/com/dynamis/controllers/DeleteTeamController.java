@@ -13,12 +13,12 @@ import com.dynamis.views.DeleteTeamView;
 
 public class DeleteTeamController implements Controller {
 
-    private String name;
+    private String description;
     private DeleteTeamView view = new DeleteTeamView(new Scanner(new BufferedInputStream(System.in)));
     private Teams teams;
 
-    public DeleteTeamController(String name, String url) {
-        this.name = name;
+    public DeleteTeamController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.teams = new Teams(connection);
@@ -38,6 +38,6 @@ public class DeleteTeamController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 }

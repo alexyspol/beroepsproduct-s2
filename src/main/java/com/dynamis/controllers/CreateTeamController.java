@@ -14,12 +14,12 @@ import com.dynamis.views.CreateTeamView;
 
 public class CreateTeamController implements Controller {
 
-    private String name;
+    private String description;
     private CreateTeamView view = new CreateTeamView(new Scanner(new BufferedInputStream(System.in)));
     private Teams teams;
 
-    public CreateTeamController(String name, String url) {
-        this.name = name;
+    public CreateTeamController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.teams = new Teams(connection);
@@ -50,7 +50,7 @@ public class CreateTeamController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 
 }

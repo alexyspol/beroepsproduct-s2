@@ -13,12 +13,12 @@ import com.dynamis.views.DeleteUserView;
 
 public class DeleteUserController implements Controller {
 
-    private String name;
+    private String description;
     private DeleteUserView view = new DeleteUserView(new Scanner(new BufferedInputStream(System.in)));
     private Users users;
 
-    public DeleteUserController(String name, String url) {
-        this.name = name;
+    public DeleteUserController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.users = new Users(connection);
@@ -38,7 +38,7 @@ public class DeleteUserController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 
 }

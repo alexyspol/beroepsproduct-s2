@@ -16,14 +16,14 @@ import com.dynamis.views.EditUserView;
 
 public class EditUserController implements Controller {
 
-    private String name;
+    private String description;
     private EditUserView view = new EditUserView(new Scanner(new BufferedInputStream(System.in)));
     private Users users;
     private Teams teams;
     private ContactInfo contacts;
 
-    public EditUserController(String name, String url) {
-        this.name = name;
+    public EditUserController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.users = new Users(connection);
@@ -89,6 +89,6 @@ public class EditUserController implements Controller {
     }
 
     public String toString() {
-        return name;
+        return description;
     }
 }

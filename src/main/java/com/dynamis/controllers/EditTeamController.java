@@ -15,12 +15,12 @@ import com.dynamis.views.EditTeamView;
 public class EditTeamController implements Controller {
 
     
-    private String name;
+    private String description;
     private EditTeamView view = new EditTeamView(new Scanner(new BufferedInputStream(System.in)));
     private Teams teams;
 
-    public EditTeamController(String name, String url) {
-        this.name = name;
+    public EditTeamController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.teams = new Teams(connection);
@@ -61,7 +61,7 @@ public class EditTeamController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 
 }

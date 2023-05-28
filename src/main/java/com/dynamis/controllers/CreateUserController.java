@@ -17,14 +17,14 @@ import com.dynamis.views.CreateUserView;
 
 public class CreateUserController implements Controller {
 
-    private String name;
+    private String description;
     private CreateUserView view = new CreateUserView(new Scanner(new BufferedInputStream(System.in)));
     private Users users;
     private Teams teams;
     private ContactInfo contacts;
 
-    public CreateUserController(String name, String url) {
-        this.name = name;
+    public CreateUserController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.users = new Users(connection);
@@ -58,9 +58,8 @@ public class CreateUserController implements Controller {
         view.success();
     }
 
-    @Override
-    public String toString() {
-        return this.name;
+    @Override public String toString() {
+        return this.description;
     }
 
 }

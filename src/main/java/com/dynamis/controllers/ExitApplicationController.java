@@ -4,11 +4,11 @@ import com.dynamis.App;
 
 public class ExitApplicationController implements Controller {
 
-    private String name;
+    private String description;
     private App app;
 
-    public ExitApplicationController(String name, App app) {
-        this.name = name;
+    public ExitApplicationController(String description, App app) {
+        this.description = description;
         this.app = app;
     }
 
@@ -17,7 +17,7 @@ public class ExitApplicationController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 
 }

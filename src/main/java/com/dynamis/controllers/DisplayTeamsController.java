@@ -14,13 +14,13 @@ import com.dynamis.views.DisplayTeamsView;
 
 public class DisplayTeamsController implements Controller {
 
-    private String name;
+    private String description;
     private DisplayTeamsView view = new DisplayTeamsView();
     private Users users;
     private Teams teams;
 
-    public DisplayTeamsController(String name, String url) {
-        this.name = name;
+    public DisplayTeamsController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.users = new Users(connection);
@@ -57,7 +57,7 @@ public class DisplayTeamsController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
 
 }

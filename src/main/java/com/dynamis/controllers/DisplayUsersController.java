@@ -15,14 +15,14 @@ import com.dynamis.views.DisplayUsersView;
 
 public class DisplayUsersController implements Controller {
 
-    private String name;
+    private String description;
     private DisplayUsersView view = new DisplayUsersView();
     private Users users;
     private Teams teams;
     private ContactInfo contacts;
 
-    public DisplayUsersController(String name, String url) {
-        this.name = name;
+    public DisplayUsersController(String description, String url) {
+        this.description = description;
         try {
             Connection connection = DriverManager.getConnection(url);
             this.users = new Users(connection);
@@ -66,7 +66,7 @@ public class DisplayUsersController implements Controller {
     }
 
     @Override public String toString() {
-        return name;
+        return description;
     }
   
 }
