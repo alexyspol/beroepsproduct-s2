@@ -102,37 +102,49 @@ public class EditUserView {
         return scanner.nextLine().trim();
     }
 
-    public int changeTeam(String oldTeamName, List<Map<String, Object>> existingTeams) {
-        String teamName;
+    public int changeTeam(int currentTeamIndex, List<Map<String, Object>> existingTeams) {
+        int selected;
+        boolean isSelectedValid = false;
 
         do {
-            System.out.printf("Change team (%s): ", oldTeamName);
-            teamName = scanner.nextLine().trim();
+            System.out.println("\nChange team:");
+            for (int i = 0; i < existingTeams.size(); i++) {
+                System.out.printf("%d. %s", i+1, existingTeams.get(i).get("team_name"));
 
-        } while(!teamName.isEmpty() && !isTeamNameExists(teamName, existingTeams));
-
-        return getTeamIDFrom(teamName, existingTeams);
-    }
-
-    private int getTeamIDFrom(String teamName, List<Map<String, Object>> existingTeams) {
-        int result = 0;
-
-        for(Map<String, Object> team : existingTeams) {
-            if(team.get("team_name").toString().equalsIgnoreCase(teamName)) {
-                result = (int) team.get("team_id");
+                if(i == currentTeamIndex) {
+                    System.out.println(" (current)");
+                }
+                else {
+                    System.out.println();
+                }
             }
+            System.out.printf("%d. %s\n", existingTeams.size() + 1, "[Skip]");
+
+            selected = parseInt(scanner.nextLine().trim());
+            isSelectedValid = (1 <= selected && selected <= existingTeams.size() + 1);
+
+            if(!isSelectedValid) {
+                System.out.printf("> Please enter a number between 1 and %d\n", existingTeams.size() + 1);
+            }
+    
+        } while(!isSelectedValid);
+
+        if(selected == existingTeams.size() + 1) {
+            return (int) existingTeams.get(currentTeamIndex).get("team_id");
         }
-
-        return result;
+        else {
+            return (int) existingTeams.get(selected - 1).get("team_id");
+        }
     }
 
-    private boolean isTeamNameExists(String teamName, List<Map<String, Object>> existingTeams) {
-        boolean result = false;
+    private static int parseInt(String str) {
+        int result;
 
-        for(Map<String, Object> team : existingTeams) {
-            if(team.get("team_name").toString().equalsIgnoreCase(teamName)) {
-                result = true;
-            }
+        try {
+            result = Integer.parseInt(str);
+        }
+        catch(NumberFormatException e) {
+            result = 0;
         }
 
         return result;
