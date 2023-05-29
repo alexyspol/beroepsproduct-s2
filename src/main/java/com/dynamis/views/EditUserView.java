@@ -18,7 +18,7 @@ public class EditUserView {
         boolean isSelectionValid = false;
 
         do {
-            System.out.println("Edit user:");
+            System.out.println("\nEdit user:");
             for(int i = 0; i < users.size(); i++) {
                 Map<String, Object> user = users.get(i);
                 System.out.printf("%d. %s %s\n", i+1, user.get("first_name"), user.get("last_name"));
@@ -30,10 +30,14 @@ public class EditUserView {
                 selected = Integer.parseInt(input);
             }
             catch(NumberFormatException e) {
-                e.printStackTrace();
+                selected = 0;
             }
 
             isSelectionValid = (1 <= selected && selected <= users.size());
+
+            if(!isSelectionValid) {
+                System.out.println("> Please enter a number between 1 and " + users.size());
+            }
 
         } while(!isSelectionValid);
 
@@ -44,6 +48,8 @@ public class EditUserView {
         boolean isAllowed = false;
         int chances = 3;
 
+        System.out.println();
+
         for(int i = 1; i <= chances; i++) {
             System.out.printf("Enter %s %s's Student ID (%d/%d): ", firstName, lastName, i, chances);
             String answer = scanner.nextLine().trim();
@@ -52,6 +58,8 @@ public class EditUserView {
                 break;
             }
         }
+
+        System.out.println();
         return isAllowed;
     }
 
