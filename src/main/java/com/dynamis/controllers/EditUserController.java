@@ -69,7 +69,12 @@ public class EditUserController implements Controller {
             users.update(selectedUser.get("student_id"), newUserData);
             contacts.update(selectedContact.get("student_id"), newContactData);
 
-            view.success();
+            if(newUserData.values().size() + newContactData.values().size() == 0) {
+                view.noEditsMade();
+            }
+            else {
+                view.success();
+            }
         }
     }
 

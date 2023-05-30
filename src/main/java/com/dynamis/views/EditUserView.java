@@ -191,4 +191,8 @@ public class EditUserView {
         System.out.println("\n> Edits applied");
     }
 
+    public void noEditsMade() {
+        System.out.println("\n> No edits applied");
+    }
+
 }
