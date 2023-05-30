@@ -43,7 +43,7 @@ public class CreateUserView {
             System.out.print("Student ID: ");
             studentID = scanner.nextLine().trim();
 
-        } while(studentID.isEmpty() || !studentID.matches("^[A-Za-z]{2}/\\d{4}/\\d{3}$"));
+        } while(studentID.isEmpty() || !studentID.matches("^[A-Za-z]{2,3}/\\d{4}/\\d{3}$"));
 
         return studentID.toUpperCase();
     }
