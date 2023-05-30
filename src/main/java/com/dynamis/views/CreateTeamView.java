@@ -15,12 +15,13 @@ public class CreateTeamView {
         boolean isUniqueName = true;
 
         do {
-            System.out.print("Create new team: ");
+            System.out.print("\nCreate new team: ");
             teamName = scanner.nextLine().trim();
 
             for (String name : existingNames) {
                 if (name.toLowerCase().equals(teamName.toLowerCase())) {
                     isUniqueName = false;
+                    System.out.printf("> \"%s\" already exists\n", teamName);
                     break;
                 }
                 else {

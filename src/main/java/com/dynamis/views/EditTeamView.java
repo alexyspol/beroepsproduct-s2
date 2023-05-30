@@ -23,14 +23,7 @@ public class EditTeamView {
                 System.out.printf("%d. %s\n", i+1, team.get("team_name"));
             }
 
-            String input = scanner.nextLine().trim();
-
-            try {
-                selected = Integer.parseInt(input);
-            }
-            catch(NumberFormatException e) {
-                e.printStackTrace();
-            }
+            selected = parseInt(scanner.nextLine().trim());
 
             isSelectionValid = (1 <= selected && selected <= teams.size());
 
@@ -39,27 +32,45 @@ public class EditTeamView {
         return selected - 1;
     }
 
+    private static int parseInt(String str) {
+        int result;
+
+        try {
+            result = Integer.parseInt(str);
+        }
+        catch(NumberFormatException e) {
+            result = 0;
+        }
+
+        return result;
+    }
+
     public String promptForNewTeamName(String currentName, String[] existingNames) {
         String teamName = "";
-        boolean isUniqueName = true;
+        int chances = 3;
         System.out.println();
 
-        do {
-            System.out.printf("Change name (%s): ", currentName);
+        for(int i = 1; i <= chances; i++) {
+            System.out.printf("Change name (%s) (%d/%d): ", currentName, i, chances);
             teamName = scanner.nextLine().trim();
+            boolean exists = false;
+
+            if(teamName.isEmpty()) {
+                continue;
+            }
 
             for (String name : existingNames) {
                 if (name.toLowerCase().equals(teamName.toLowerCase())) {
-                    isUniqueName = false;
+                    exists = true;
+                    System.out.printf("> \"%s\" already exists\n", teamName);
                     break;
-                }
-                else {
-                    isUniqueName = true;
                 }
             }
 
-        } while(!teamName.isEmpty() && !isUniqueName);
-
+            if(!exists) {
+                break;
+            }
+        }
         return teamName;
     }
 

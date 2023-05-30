@@ -123,7 +123,7 @@ public class CreateUserView {
 
         } while(!email.isEmpty() && !email.matches("^[\\w._-]+@[\\w.-]+\\.[A-Za-z]{2,}$"));
 
-        return email;
+        return email.toLowerCase();
     }
 
     public String promptForResidence() {
