@@ -48,24 +48,24 @@ public class EditUserController implements Controller {
         );
 
         if(isEditingAllowed) {
-            Map<String, Object> selectedTeam = teams.read(selectedUser.get("team_id"));
             Map<String, Object> selectedContact = contacts.read(selectedUser.get("student_id"));
 
             Map<String, Object> newUserData = new HashMap<>();
+            Map<String, Object> newContactData = new HashMap<>();
+
             newUserData.put("first_name", view.editFirstName((String) selectedUser.get("first_name")));
             newUserData.put("last_name", view.editLastName((String) selectedUser.get("last_name")));
             // newUserData.put("student_id", view.editStudentID((String) selectedUser.get("student_id")));
             newUserData.put("dob", view.editDateOfBirth((String) selectedUser.get("dob")));
             newUserData.put("skill", view.editSkill((String) selectedUser.get("skill")));
-            newUserData.put("team_id", view.changeTeam((String) selectedTeam.get("team_name"), teams.readAll()));
-            newUserData = mergeData(selectedUser, newUserData);
-
-            Map<String, Object> newContactData = new HashMap<>();
             newContactData.put("phone", view.editPhoneNumber((String) selectedContact.get("phone")));
             newContactData.put("email", view.editEmail((String) selectedContact.get("email")));
             newContactData.put("residence", view.editResidence((String) selectedContact.get("residence")));
-            newContactData = mergeData(selectedContact, newContactData);
+            newUserData.put("team_id", view.changeTeam(selected, teams.readAll()));
 
+            newUserData = mergeData(selectedUser, newUserData);
+            newContactData = mergeData(selectedContact, newContactData);
+            
             users.update(selectedUser.get("student_id"), newUserData);
             contacts.update(selectedContact.get("student_id"), newContactData);
 
@@ -86,7 +86,8 @@ public class EditUserController implements Controller {
     
             if (newValue instanceof String && !((String) newValue).isEmpty() && !newValue.equals(currentValue)) {
                 merged.put(key, newValue);
-            } else if (newValue instanceof Integer && !newValue.equals(currentValue)) {
+            }
+            else if (newValue instanceof Integer && !newValue.equals(currentValue)) {
                 merged.put(key, newValue);
             }
         }

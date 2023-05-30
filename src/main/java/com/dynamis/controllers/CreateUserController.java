@@ -44,14 +44,15 @@ public class CreateUserController implements Controller {
         userData.put("last_name", view.promptForLastName());
         userData.put("student_id", view.promptForStudentID());
         userData.put("dob", view.promptForDateOfBirth());
-        userData.put("team_id", view.promptForTeamName(existingTeams));
+        userData.put("skill", view.promptForSkill());
 
         Map<String, Object> contactData = new HashMap<>();
         contactData.put("phone", view.promptForPhoneNumber());
         contactData.put("email", view.promptForEmail());
         contactData.put("residence", view.promptForResidence());
-        userData.put("skill", view.promptForSkill());
 
+        userData.put("team_id", view.promptForTeamName(existingTeams));
+        
         users.create(userData);
         contacts.create(contactData);
 

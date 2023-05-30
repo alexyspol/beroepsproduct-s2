@@ -69,15 +69,37 @@ public class CreateUserView {
     }
 
     public int promptForTeamName(List<Map<String, Object>> existingTeams) {
-        String teamName;
+        int selected;
 
         do {
-            System.out.print("Join team: ");
-            teamName = scanner.nextLine().trim();
+            System.out.println("\nJoin team: ");
+            for(int i = 0; i < existingTeams.size(); i++) {
+                Map<String, Object> team = existingTeams.get(i);
+                System.out.printf("%d. %s\n", i+1, team.get("team_name"));
+            }
 
-        } while(teamName.isEmpty() || !isTeamNameExists(teamName, existingTeams));
+            selected = parseInt(scanner.nextLine().trim());
 
-        return getTeamIDFrom(teamName, existingTeams);
+            if(!(1 <= selected && selected <= existingTeams.size())) {
+                System.out.println("> Please enter a number between 1 and " + existingTeams.size());
+            }
+
+        } while(!(1 <= selected && selected <= existingTeams.size()));
+
+        return (int) existingTeams.get(selected - 1).get("team_id");
+    }
+
+    private static int parseInt(String str) {
+        int result;
+
+        try {
+            result = Integer.parseInt(str);
+        }
+        catch(NumberFormatException e) {
+            result = 0;
+        }
+
+        return result;
     }
 
     public String promptForPhoneNumber() {
@@ -116,30 +138,6 @@ public class CreateUserView {
 
     public void success() {
         System.out.println("\n> User created");
-    }
-
-    private int getTeamIDFrom(String teamName, List<Map<String, Object>> existingTeams) {
-        int result = 0;
-
-        for(Map<String, Object> team : existingTeams) {
-            if(team.get("team_name").toString().equalsIgnoreCase(teamName)) {
-                result = (int) team.get("team_id");
-            }
-        }
-
-        return result;
-    }
-
-    private boolean isTeamNameExists(String teamName, List<Map<String, Object>> existingTeams) {
-        boolean result = false;
-
-        for(Map<String, Object> team : existingTeams) {
-            if(team.get("team_name").toString().equalsIgnoreCase(teamName)) {
-                result = true;
-            }
-        }
-
-        return result;
     }
 
 }
