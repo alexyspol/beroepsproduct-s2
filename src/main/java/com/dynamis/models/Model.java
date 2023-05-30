@@ -131,6 +131,10 @@ public abstract class Model {
             setClause.append(column).append(" = ?");
         }
 
+        if(setClause.length() == 0) {
+            return;
+        }
+
         try(PreparedStatement statement = connection.prepareStatement("UPDATE " + getTableName() + " SET " + setClause + " WHERE " + getPrimaryKey() + " = ?")) {
             int index = 1;
 
