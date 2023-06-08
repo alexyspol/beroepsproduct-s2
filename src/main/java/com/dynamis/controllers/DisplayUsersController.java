@@ -41,25 +41,26 @@ public class DisplayUsersController implements Controller {
 
         List<Map<String, Object>> merged = new ArrayList<>();
 
-        for (Map<String, Object> person : everyone) {
+        for(Map<String, Object> person : everyone) {
+
+            Map<String, Object> mergedMap = new HashMap<>(person);
             String teamId = person.get("team_id").toString();
 
-            for (Map<String, Object> team : allTeams) {
-                if (team.get("team_id").toString().equals(teamId)) {
-                    Map<String, Object> mergedMap = new HashMap<>(person);
-                    mergedMap.putAll(team);
-
-                    for (Map<String, Object> contact : allContacts) {
-                        if (contact.get("student_id").toString().equals(person.get("student_id").toString())) {
-                            mergedMap.putAll(contact);
-                            break;
-                        }
-                    }
-
-                    merged.add(mergedMap);
+            for(Map<String, Object> contact : allContacts) {
+                if (contact.get("student_id").toString().equals(person.get("student_id").toString())) {
+                    mergedMap.putAll(contact);
                     break;
                 }
             }
+
+            for(Map<String, Object> team : allTeams) {
+                if(team.get("team_id").toString().equals(teamId)) {
+                    mergedMap.putAll(team);
+                    break;
+                }
+            }
+
+            merged.add(mergedMap);
         }
 
         view.show(merged);
