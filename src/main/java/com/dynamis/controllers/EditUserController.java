@@ -61,7 +61,7 @@ public class EditUserController implements Controller {
             newContactData.put("phone", view.editPhoneNumber((String) selectedContact.get("phone")));
             newContactData.put("email", view.editEmail((String) selectedContact.get("email")));
             newContactData.put("residence", view.editResidence((String) selectedContact.get("residence")));
-            newUserData.put("team_id", view.changeTeam(selected, teams.readAll()));
+            newUserData.put("team_id", view.changeTeam((int) selectedUser.get("team_id"), teams.readAll()));
 
             newUserData = mergeData(selectedUser, newUserData);
             newContactData = mergeData(selectedContact, newContactData);

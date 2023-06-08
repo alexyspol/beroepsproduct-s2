@@ -124,7 +124,7 @@ public class EditUserView {
             for (int i = 0; i < existingTeams.size(); i++) {
                 System.out.printf("%d. %s", i+1, existingTeams.get(i).get("team_name"));
 
-                if(i == currentTeamIndex) {
+                if(i+1 == currentTeamIndex) {
                     System.out.println(" (current)");
                 }
                 else {
@@ -143,7 +143,7 @@ public class EditUserView {
         } while(!isSelectedValid);
 
         if(selected == existingTeams.size() + 1) {
-            return (int) existingTeams.get(currentTeamIndex).get("team_id");
+            return (int) existingTeams.get(currentTeamIndex - 1).get("team_id");
         }
         else {
             return (int) existingTeams.get(selected - 1).get("team_id");
