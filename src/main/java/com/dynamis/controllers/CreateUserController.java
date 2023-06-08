@@ -47,6 +47,7 @@ public class CreateUserController implements Controller {
         userData.put("skill", view.promptForSkill());
 
         Map<String, Object> contactData = new HashMap<>();
+        contactData.put("student_id", userData.get("student_id"));
         contactData.put("phone", view.promptForPhoneNumber());
         contactData.put("email", view.promptForEmail());
         contactData.put("residence", view.promptForResidence());
