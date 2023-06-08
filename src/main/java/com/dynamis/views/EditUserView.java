@@ -53,7 +53,7 @@ public class EditUserView {
         for(int i = 1; i <= chances; i++) {
             System.out.printf("Enter %s %s's Student ID (%d/%d): ", firstName, lastName, i, chances);
             String answer = scanner.nextLine().trim();
-            if(answer.equals(studentID)) {
+            if(answer.toLowerCase().equals(studentID.toLowerCase())) {
                 isAllowed = true;
                 break;
             }
