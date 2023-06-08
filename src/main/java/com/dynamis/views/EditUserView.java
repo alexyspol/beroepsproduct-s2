@@ -106,7 +106,12 @@ public class EditUserView {
     }
 
     public String editSkill(String oldSkill) {
-        System.out.printf("Skill (%s): ", oldSkill);
+        if(oldSkill.length() == 0) {
+            System.out.print("Skill: ");
+        }
+        else {
+            System.out.printf("Skill (%s): ", oldSkill);
+        }
         return scanner.nextLine().trim();
     }
 
@@ -162,7 +167,12 @@ public class EditUserView {
         String phoneNumber;
 
         do {
-            System.out.printf("Phone number (%s): ", oldPhoneNumber);
+            if(oldPhoneNumber.length() == 0) {
+                System.out.print("Phone number: ");
+            }
+            else {
+                System.out.printf("Phone number (%s): ", oldPhoneNumber);
+            }
             phoneNumber = scanner.nextLine().trim();
 
         } while(!phoneNumber.isEmpty() && !phoneNumber.matches("0\\d{3}-\\d{4}|0\\d{7}|\\d{3}-\\d{4}|\\d{7}"));
@@ -174,7 +184,12 @@ public class EditUserView {
         String email;
 
         do {
-            System.out.printf("E-mail (%s): ", oldEmail);
+            if(oldEmail.length() == 0) {
+                System.out.print("E-mail: ");
+            }
+            else {
+                System.out.printf("E-mail (%s): ", oldEmail);
+            }
             email = scanner.nextLine().trim();
 
         } while(!email.isEmpty() && !email.matches("^[\\w._-]+@[\\w.-]+\\.[A-Za-z]{2,}$"));
@@ -183,7 +198,12 @@ public class EditUserView {
     }
 
     public String editResidence(String oldResidence) {
-        System.out.printf("Residence (%s): ", oldResidence);
+        if(oldResidence.length() == 0) {
+            System.out.print("Residence: ");
+        }
+        else {
+            System.out.printf("Residence (%s): ", oldResidence);
+        }
         return scanner.nextLine().trim();
     }
 
