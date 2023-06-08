@@ -55,7 +55,6 @@ public class EditUserController implements Controller {
 
             newUserData.put("first_name", view.editFirstName((String) selectedUser.get("first_name")));
             newUserData.put("last_name", view.editLastName((String) selectedUser.get("last_name")));
-            // newUserData.put("student_id", view.editStudentID((String) selectedUser.get("student_id")));
             newUserData.put("dob", view.editDateOfBirth((String) selectedUser.get("dob")));
             newUserData.put("skill", view.editSkill((String) selectedUser.get("skill")));
             newContactData.put("phone", view.editPhoneNumber((String) selectedContact.get("phone")));
